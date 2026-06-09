@@ -420,14 +420,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script>
-// ── CONFIG FIREBASE ── Reemplaza con tus datos
+// ── CONFIG FIREBASE ──
 const firebaseConfig = {
-  apiKey:            "TU_API_KEY",
-  authDomain:        "TU_AUTH_DOMAIN",
-  projectId:         "TU_PROJECT_ID",
-  storageBucket:     "TU_STORAGE_BUCKET",
-  messagingSenderId: "TU_SENDER_ID",
-  appId:             "TU_APP_ID"
+  apiKey:            "AIzaSyCX3Mwn8YwYrE2yQCsmvMBRjfegoJmwOFM",
+  authDomain:        "mototrack-f33b7.firebaseapp.com",
+  projectId:         "mototrack-f33b7",
+  storageBucket:     "mototrack-f33b7.firebasestorage.app",
+  messagingSenderId: "83865343370",
+  appId:             "1:83865343370:web:972fb35e7021bcfbe92473"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -460,6 +460,15 @@ $('btn-continue').onclick=()=>{
 $('ln-name').onkeydown=e=>{if(e.key==='Enter')$('btn-continue').click()};
 $('btn-back').onclick=()=>{$('step-pin').style.display='none';$('step-name').style.display='flex';$('step-name').style.flexDirection='column';$('step-name').style.gap='20px';pinBuf='';updateDots()};
 document.querySelectorAll('.num-btn').forEach(b=>b.addEventListener('click',()=>handlePin(b.dataset.n)));
+
+// ── TECLADO FÍSICO (PC) para PIN ──
+document.addEventListener('keydown',e=>{
+  const sp=$('step-pin'); if(sp.style.display!=='flex')return;
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
+  if(e.key>='0'&&e.key<='9'){e.preventDefault();handlePin(e.key)}
+  else if(e.key==='Backspace'){e.preventDefault();handlePin('del')}
+  else if(e.key==='Enter'){e.preventDefault();handlePin('ok')}
+});
 
 function handlePin(n){
   if(n==='del'){if(pinBuf.length)pinBuf=pinBuf.slice(0,-1)}
