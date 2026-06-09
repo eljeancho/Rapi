@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MotoTrack – Control Domiciliario</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────── -->
+<div id="login-screen" class="screen active">
+  <div class="login-wrapper">
+    <div class="login-logo">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="24" fill="#FF6B00" fill-opacity="0.15"/>
+        <path d="M8 30c0 0 4-10 16-10s16 10 16 10" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="14" cy="32" r="4" fill="#FF6B00"/>
+        <circle cx="34" cy="32" r="4" fill="#FF6B00"/>
+        <path d="M20 20l2-8h4l2 8" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1 class="login-title">MotoTrack</h1>
+    <p class="login-sub">Control inteligente para domiciliarios</p>
+
+    <div id="login-form">
+      <div class="input-group">
+        <label>Tu nombre</label>
+        <input id="login-name" type="text" placeholder="Ej: Carlos" autocomplete="off" />
+      </div>
+      <div class="input-group">
+        <label>PIN de 4 dígitos</label>
+        <div class="pin-dots" id="pin-display">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <div class="numpad">
+          <button class="num-btn" data-n="1">1</button><button class="num-btn" data-n="2">2</button><button class="num-btn" data-n="3">3</button>
+          <button class="num-btn" data-n="4">4</button><button class="num-btn" data-n="5">5</button><button class="num-btn" data-n="6">6</button>
+          <button class="num-btn" data-n="7">7</button><button class="num-btn" data-n="8">8</button><button class="num-btn" data-n="9">9</button>
+          <button class="num-btn ghost" data-n="clr">⌫</button><button class="num-btn" data-n="0">0</button><button class="num-btn ghost" data-n="ok">OK</button>
+        </div>
+      </div>
+      <div id="login-error" class="error-msg hidden"></div>
+      <button id="login-btn" class="btn-primary full">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ───────────────────────────────────── -->
+<div id="app-screen" class="screen">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-date" id="topbar-date"></span>
+    </div>
+    <div class="topbar-center">
+      <span class="topbar-user" id="topbar-user"></span>
+    </div>
+    <div class="topbar-right">
+      <button id="logout-btn" class="icon-btn">⏻</button>
+    </div>
+  </header>
+
+  <!-- PAGES -->
+  <main class="pages">
+
+    <!-- ── PAGE: INICIO ── -->
+    <section id="page-inicio" class="page active">
+      <div class="summary-hero">
+        <div class="hero-earn">
+          <span class="hero-label">Ganado hoy</span>
+          <span class="hero-amount" id="sum-today">$0</span>
+        </div>
+        <div class="meta-ring-wrap">
+          <svg class="meta-ring" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#1e2530" stroke-width="8"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#FF6B00" stroke-width="8"
+              stroke-dasharray="264" stroke-dashoffset="264" id="meta-arc"
+              stroke-linecap="round" transform="rotate(-90 50 50)"/>
+          </svg>
+          <div class="meta-ring-text">
+            <span id="meta-pct">0%</span>
+            <span class="meta-ring-label">meta</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">🛵</span>
+          <span class="stat-val" id="sum-services">0</span>
+          <span class="stat-lbl">servicios</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🎁</span>
+          <span class="stat-val" id="sum-tips">$0</span>
+          <span class="stat-lbl">propinas</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⏱</span>
+          <span class="stat-val" id="sum-time">0h 0m</span>
+          <span class="stat-lbl">trabajado</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">📈</span>
+          <span class="stat-val" id="sum-avg">$0</span>
+          <span class="stat-lbl">por servicio</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⚡</span>
+          <span class="stat-val" id="sum-perhour">$0</span>
+          <span class="stat-lbl">por hora</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">📍</span>
+          <span class="stat-val" id="sum-km">0 km</span>
+          <span class="stat-lbl">recorridos</span>
+        </div>
+      </div>
+
+      <div class="section-title">Últimas entregas</div>
+      <div id="recent-list" class="delivery-list">
+        <div class="empty-state">Sin entregas hoy.<br>¡Registra tu primera!</div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: REGISTRO ── -->
+    <section id="page-registro" class="page">
+      <div class="page-header">
+        <h2>Nueva entrega</h2>
+      </div>
+      <div class="form-card">
+        <div class="form-row two-col">
+          <div class="input-group">
+            <label>Hora inicio</label>
+            <input id="f-start" type="time" />
+          </div>
+          <div class="input-group">
+            <label>Hora fin</label>
+            <input id="f-end" type="time" />
+          </div>
+        </div>
+        <div class="form-row two-col">
+          <div class="input-group">
+            <label>Distancia (km)</label>
+            <input id="f-km" type="number" step="0.1" min="0" placeholder="0.0" inputmode="decimal"/>
+          </div>
+          <div class="input-group">
+            <label>Valor cobrado</label>
+            <input id="f-value" type="number" min="0" placeholder="$0" inputmode="numeric"/>
+          </div>
+        </div>
+        <div class="form-row two-col">
+          <div class="input-group">
+            <label>Propina</label>
+            <input id="f-tip" type="number" min="0" placeholder="$0" inputmode="numeric"/>
+          </div>
+          <div class="input-group">
+            <label>Plataforma</label>
+            <select id="f-platform">
+              <option value="">Seleccionar...</option>
+              <option value="Rappi">Rappi</option>
+              <option value="Didi Food">Didi Food</option>
+              <option value="PedidosYa">PedidosYa</option>
+              <option value="iFood">iFood</option>
+              <option value="Mensajería privada">Mensajería privada</option>
+              <option value="Otra">Otra</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Observaciones</label>
+          <textarea id="f-notes" rows="2" placeholder="Cliente difícil, zona peligrosa, etc."></textarea>
+        </div>
+        <button id="save-delivery-btn" class="btn-primary full">Guardar entrega</button>
+      </div>
+
+      <div class="page-header" style="margin-top:20px">
+        <h2>Hoy – historial</h2>
+      </div>
+      <div id="today-list" class="delivery-list">
+        <div class="empty-state">Sin entregas registradas hoy.</div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: GASOLINA ── -->
+    <section id="page-gasolina" class="page">
+      <div class="page-header"><h2>Control de gasolina</h2></div>
+
+      <div class="fuel-stats-row">
+        <div class="fuel-stat">
+          <span class="fuel-big" id="fuel-consume">–</span>
+          <span class="fuel-lbl">km/galón</span>
+        </div>
+        <div class="fuel-stat">
+          <span class="fuel-big" id="fuel-cpkm">–</span>
+          <span class="fuel-lbl">costo/km</span>
+        </div>
+        <div class="fuel-stat">
+          <span class="fuel-big" id="fuel-net">–</span>
+          <span class="fuel-lbl">ganancia neta</span>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="section-title" style="margin:0 0 12px">Registrar tanqueada</div>
+        <div class="form-row two-col">
+          <div class="input-group">
+            <label>Fecha</label>
+            <input id="g-date" type="date" />
+          </div>
+          <div class="input-group">
+            <label>Valor gastado</label>
+            <input id="g-cost" type="number" min="0" placeholder="$0" inputmode="numeric"/>
+          </div>
+        </div>
+        <div class="form-row two-col">
+          <div class="input-group">
+            <label>Galones / litros</label>
+            <input id="g-liters" type="number" step="0.01" min="0" placeholder="0.0" inputmode="decimal"/>
+          </div>
+          <div class="input-group">
+            <label>Km al momento</label>
+            <input id="g-odo" type="number" min="0" placeholder="odómetro" inputmode="numeric"/>
+          </div>
+        </div>
+        <button id="save-fuel-btn" class="btn-primary full">Registrar tanqueada</button>
+      </div>
+
+      <div class="section-title" style="margin-top:20px">Historial</div>
+      <div id="fuel-list" class="delivery-list">
+        <div class="empty-state">Sin tanqueadas registradas.</div>
+      </div>
+    </section>
+
+    <!-- ── PAGE: METAS ── -->
+    <section id="page-metas" class="page">
+      <div class="page-header"><h2>Metas</h2></div>
+
+      <div class="form-card">
+        <div class="input-group">
+          <label>Meta diaria ($)</label>
+          <input id="m-daily" type="number" min="0" placeholder="Ej: 80000" inputmode="numeric"/>
+        </div>
+        <div class="input-group">
+          <label>Meta semanal ($)</label>
+          <input id="m-weekly" type="number" min="0" placeholder="Ej: 400000" inputmode="numeric"/>
+        </div>
+        <div class="input-group">
+          <label>Meta mensual ($)</label>
+          <input id="m-monthly" type="number" min="0" placeholder="Ej: 1600000" inputmode="numeric"/>
+        </div>
+        <button id="save-goals-btn" class="btn-primary full">Guardar metas</button>
+      </div>
+
+      <div class="goals-progress-wrap" id="goals-progress"></div>
+    </section>
+
+    <!-- ── PAGE: ESTADÍSTICAS ── -->
+    <section id="page-stats" class="page">
+      <div class="page-header"><h2>Estadísticas</h2></div>
+
+      <div class="stats-period-tabs">
+        <button class="period-tab active" data-period="week">Semana</button>
+        <button class="period-tab" data-period="month">Mes</button>
+        <button class="period-tab" data-period="all">Todo</button>
+      </div>
+
+      <div class="stats-block">
+        <div class="stats-block-title">Resumen del período</div>
+        <div class="stats-grid small">
+          <div class="stat-card"><span class="stat-icon">💰</span><span class="stat-val" id="st-total">$0</span><span class="stat-lbl">total</span></div>
+          <div class="stat-card"><span class="stat-icon">🛵</span><span class="stat-val" id="st-count">0</span><span class="stat-lbl">servicios</span></div>
+          <div class="stat-card"><span class="stat-icon">📊</span><span class="stat-val" id="st-daily-avg">$0</span><span class="stat-lbl">prom. diario</span></div>
+          <div class="stat-card"><span class="stat-icon">🏆</span><span class="stat-val" id="st-best-day">–</span><span class="stat-lbl">mejor día</span></div>
+        </div>
+      </div>
+
+      <div class="stats-block">
+        <div class="stats-block-title">Por día de la semana</div>
+        <div id="chart-weekday" class="bar-chart-wrap"></div>
+      </div>
+
+      <div class="stats-block">
+        <div class="stats-block-title">Por horario</div>
+        <div id="chart-hour" class="bar-chart-wrap"></div>
+      </div>
+
+      <div class="stats-block">
+        <div class="stats-block-title">Por plataforma</div>
+        <div id="chart-platform" class="bar-chart-wrap"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="inicio">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Inicio</span>
+    </button>
+    <button class="nav-btn" data-page="registro">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Registrar</span>
+    </button>
+    <button class="nav-btn" data-page="gasolina">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V7a2 2 0 012-2h10a2 2 0 012 2v2"/><path d="M19 11v4a2 2 0 01-2 2h-1"/><path d="M17 5l3 3-3 3"/><rect x="3" y="11" width="10" height="7" rx="1"/></svg>
+      <span>Gasolina</span>
+    </button>
+    <button class="nav-btn" data-page="metas">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <span>Metas</span>
+    </button>
+    <button class="nav-btn" data-page="stats">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Stats</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
