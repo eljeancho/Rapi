@@ -1,330 +1,662 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MotoTrack – Control Domiciliario</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>MotoTrack</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2a2f45;
+  --accent:#FF6B00;--accent2:#ff8c38;--green:#22c55e;--red:#ef4444;
+  --yellow:#f59e0b;--blue:#3b82f6;--text:#f1f5f9;--muted:#64748b;--muted2:#94a3b8;
+  --nav-h:64px;--top-h:56px;
+  --font-n:'Space Grotesk',sans-serif;--font-ui:'Inter',sans-serif;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-ui);-webkit-tap-highlight-color:transparent}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;display:none;flex-direction:column;background:var(--bg)}
+.screen.active{display:flex}
+
+/* ── LOGIN ── */
+#login-screen{align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,107,0,.12) 0%,transparent 70%),var(--bg)}
+.login-wrap{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.login-logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.login-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,#FF6B00,#ff8c38);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:22px}
+.login-brand{font-family:var(--font-n);font-size:26px;font-weight:700;color:var(--text)}
+.login-sub{font-size:13px;color:var(--muted2);margin-bottom:28px}
+.login-card{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:20px}
+
+/* name step */
+.step-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);text-align:center;margin-bottom:4px}
+.name-input-wrap{position:relative}
+.name-input-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-size:16px;font-family:var(--font-ui);padding:14px 44px 14px 16px;outline:none;transition:border-color .2s}
+.name-input-wrap input:focus{border-color:var(--accent)}
+.name-input-wrap .icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:18px}
+.login-back{background:none;border:none;color:var(--muted2);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0;margin-bottom:4px}
+.login-back:hover{color:var(--text)}
+
+/* pin */
+.pin-dots{display:flex;gap:10px;justify-content:center;margin:8px 0}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:transparent;transition:all .15s}
+.dot.filled{background:var(--accent);border-color:var(--accent);transform:scale(1.1)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.num-btn{padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--surface2);
+  color:var(--text);font-size:20px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .12s;position:relative;overflow:hidden}
+.num-btn:active{background:var(--surface);transform:scale(.96)}
+.num-btn.del{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:var(--red);font-size:16px}
+.num-btn.ok{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.3);color:var(--green);font-size:18px}
+.login-username{font-family:var(--font-n);font-size:16px;font-weight:600;color:var(--accent)}
+
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;
+  padding:15px;font-size:15px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s;width:100%}
+.btn-primary:active{transform:scale(.98);opacity:.9}
+.error-msg{color:var(--red);font-size:13px;text-align:center;background:rgba(239,68,68,.1);border-radius:10px;padding:10px;display:none}
+.error-msg.show{display:block}
+
+/* ── TOP BAR ── */
+.topbar{height:var(--top-h);background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
+.topbar-brand{display:flex;align-items:center;gap:8px}
+.topbar-icon{width:28px;height:28px;background:linear-gradient(135deg,#FF6B00,#ff8c38);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:14px}
+.topbar-name{font-family:var(--font-n);font-size:14px;font-weight:700;color:var(--text)}
+.topbar-user{font-size:12px;color:var(--accent)}
+.topbar-right{display:flex;align-items:center;gap:4px}
+.icon-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:8px;border-radius:10px;
+  font-size:18px;transition:all .15s}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.topbar-date{font-size:12px;color:var(--muted2)}
+
+/* ── PAGES ── */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{display:none;position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(var(--nav-h)+16px)}
+.page.active{display:block}
+.page-title{font-family:var(--font-n);font-size:20px;font-weight:700;margin-bottom:16px}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{height:var(--nav-h);background:var(--surface);border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;
+  color:var(--muted);font-size:10px;font-family:var(--font-ui);cursor:pointer;padding:8px 0;transition:all .15s;border-radius:12px}
+.nav-btn svg{transition:all .15s}
+.nav-btn.active{color:var(--accent)}
+.nav-btn.active svg{stroke:var(--accent)}
+.nav-btn span{font-weight:500}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px}
+.card+.card,.card+.form-section{margin-top:12px}
+
+/* ── HERO ── */
+.hero-card{background:linear-gradient(135deg,var(--surface) 0%,rgba(255,107,0,.08) 100%);
+  border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between}
+.hero-left{}
+.hero-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted2);margin-bottom:4px}
+.hero-amt{font-family:var(--font-n);font-size:40px;font-weight:700;color:var(--green);line-height:1}
+.hero-sub{font-size:12px;color:var(--muted2);margin-top:4px}
+.ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0}
+.ring-wrap svg{width:100%;height:100%}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.ring-pct{font-family:var(--font-n);font-size:16px;font-weight:700;color:var(--accent)}
+.ring-lbl{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.4px}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.stat-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.stat-emoji{font-size:16px}
+.stat-val{font-family:var(--font-n);font-size:15px;font-weight:700}
+.stat-lbl{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.3px}
+
+/* ── SECTION TITLE ── */
+.sec-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted2);margin-bottom:10px}
+
+/* ── DELIVERY CARD ── */
+.d-list{display:flex;flex-direction:column;gap:8px}
+.d-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+.d-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.d-platform{font-size:11px;font-weight:600;color:var(--accent);background:rgba(255,107,0,.12);padding:3px 10px;border-radius:20px}
+.d-time{font-size:11px;color:var(--muted2)}
+.d-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;border-radius:6px}
+.d-del:active{color:var(--red)}
+.d-vals{display:flex;gap:14px;margin-bottom:6px}
+.d-v{font-family:var(--font-n);font-size:17px;font-weight:700;color:var(--green)}
+.d-v small{font-size:10px;color:var(--muted2);font-weight:400;display:block}
+.d-tags{display:flex;gap:6px;flex-wrap:wrap}
+.d-tag{font-size:11px;color:var(--muted2);background:var(--surface2);padding:2px 8px;border-radius:8px}
+.empty{text-align:center;color:var(--muted2);font-size:13px;padding:28px 16px;line-height:1.7}
+
+/* ── FORM ── */
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2)}
+.field input,.field select,.field textarea{
+  background:var(--surface2);border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-size:15px;font-family:var(--font-ui);padding:11px 14px;outline:none;transition:border-color .2s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field select option{background:var(--surface2)}
+.field textarea{resize:none}
+.row2{display:flex;gap:12px}.row2>.field{flex:1;min-width:0}
+.btn-save{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;
+  padding:14px;font-size:15px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s;width:100%}
+.btn-save:active{transform:scale(.98)}
+
+/* ── FUEL ── */
+.fuel-row{display:flex;gap:10px;margin-bottom:12px}
+.fuel-kpi{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 8px;text-align:center}
+.fuel-kpi-v{font-family:var(--font-n);font-size:18px;font-weight:700;color:var(--yellow);display:block}
+.fuel-kpi-l{font-size:10px;color:var(--muted2);text-transform:uppercase}
+.fuel-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.fuel-card-date{font-size:11px;color:var(--muted2);margin-bottom:3px}
+.fuel-card-cost{font-family:var(--font-n);font-size:18px;font-weight:700;color:var(--yellow)}
+.fuel-card-meta{font-size:12px;color:var(--muted2);text-align:right}
+
+/* ── GOALS ── */
+.goal-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px}
+.goal-card+.goal-card{margin-top:10px}
+.goal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.goal-name{font-family:var(--font-n);font-size:14px;font-weight:600}
+.goal-nums{font-size:12px;color:var(--muted2)}
+.goal-track{height:8px;background:var(--surface2);border-radius:10px;overflow:hidden}
+.goal-fill{height:100%;border-radius:10px;background:var(--accent);transition:width .5s ease}
+.goal-fill.done{background:var(--green)}
+.goal-pct-txt{font-size:11px;color:var(--muted2);text-align:right;margin-top:4px}
+
+/* ── STATS ── */
+.period-tabs{display:flex;gap:8px;margin-bottom:14px}
+.ptab{flex:1;padding:8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);
+  color:var(--muted2);font-size:13px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s}
+.ptab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.stats-block{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+.stats-block-title{font-size:11px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.bar-lbl{font-size:11px;color:var(--muted2);min-width:58px;text-align:right}
+.bar-track{flex:1;height:22px;background:var(--surface2);border-radius:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;transition:width .4s ease;min-width:0}
+.bar-fill .bval{font-size:11px;font-family:var(--font-n);font-weight:600;color:#fff;white-space:nowrap}
+.bar-fill.top{background:var(--green)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(var(--nav-h)+14px);left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;
+  padding:10px 20px;border-radius:20px;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:var(--green);color:var(--green)}
+#toast.err{border-color:var(--red);color:var(--red)}
+
+@media(min-width:520px){.pages{display:flex;justify-content:center}.page{max-width:500px;width:100%}}
+</style>
 </head>
 <body>
 
-<!-- ── LOGIN ─────────────────────────────────────── -->
+<!-- LOGIN -->
 <div id="login-screen" class="screen active">
-  <div class="login-wrapper">
-    <div class="login-logo">
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-        <circle cx="24" cy="24" r="24" fill="#FF6B00" fill-opacity="0.15"/>
-        <path d="M8 30c0 0 4-10 16-10s16 10 16 10" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="14" cy="32" r="4" fill="#FF6B00"/>
-        <circle cx="34" cy="32" r="4" fill="#FF6B00"/>
-        <path d="M20 20l2-8h4l2 8" stroke="#FF6B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+  <div class="login-wrap">
+    <div class="login-logo-wrap">
+      <div class="login-logo-icon">🛵</div>
+      <span class="login-brand">MotoTrack</span>
     </div>
-    <h1 class="login-title">MotoTrack</h1>
     <p class="login-sub">Control inteligente para domiciliarios</p>
 
-    <div id="login-form">
-      <div class="input-group">
-        <label>Tu nombre</label>
-        <input id="login-name" type="text" placeholder="Ej: Carlos" autocomplete="off" />
-      </div>
-      <div class="input-group">
-        <label>PIN de 4 dígitos</label>
-        <div class="pin-dots" id="pin-display">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        </div>
-        <div class="numpad">
-          <button class="num-btn" data-n="1">1</button><button class="num-btn" data-n="2">2</button><button class="num-btn" data-n="3">3</button>
-          <button class="num-btn" data-n="4">4</button><button class="num-btn" data-n="5">5</button><button class="num-btn" data-n="6">6</button>
-          <button class="num-btn" data-n="7">7</button><button class="num-btn" data-n="8">8</button><button class="num-btn" data-n="9">9</button>
-          <button class="num-btn ghost" data-n="clr">⌫</button><button class="num-btn" data-n="0">0</button><button class="num-btn ghost" data-n="ok">OK</button>
+    <!-- STEP 1: nombre -->
+    <div class="login-card" id="step-name">
+      <div>
+        <div class="step-label">Ingresa tu nombre de usuario</div>
+        <div class="name-input-wrap" style="margin-top:8px">
+          <input id="ln-name" type="text" placeholder="Ej: Juan, María..." autocomplete="off"/>
+          <span class="icon">👤</span>
         </div>
       </div>
-      <div id="login-error" class="error-msg hidden"></div>
-      <button id="login-btn" class="btn-primary full">Entrar</button>
+      <button class="btn-primary" id="btn-continue">→ Continuar</button>
+      <div class="error-msg" id="err-name"></div>
+    </div>
+
+    <!-- STEP 2: PIN -->
+    <div class="login-card" id="step-pin" style="display:none">
+      <div>
+        <button class="login-back" id="btn-back">← <span id="back-name"></span></button>
+        <div class="step-label">Ingresa tu PIN</div>
+        <div class="pin-dots" id="pin-dots">
+          <span class="dot"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+      <div class="numpad">
+        <button class="num-btn" data-n="1">1</button>
+        <button class="num-btn" data-n="2">2</button>
+        <button class="num-btn" data-n="3">3</button>
+        <button class="num-btn" data-n="4">4</button>
+        <button class="num-btn" data-n="5">5</button>
+        <button class="num-btn" data-n="6">6</button>
+        <button class="num-btn" data-n="7">7</button>
+        <button class="num-btn" data-n="8">8</button>
+        <button class="num-btn" data-n="9">9</button>
+        <button class="num-btn del" data-n="del">⌫</button>
+        <button class="num-btn" data-n="0">0</button>
+        <button class="num-btn ok" data-n="ok">✓</button>
+      </div>
+      <div class="error-msg" id="err-pin"></div>
     </div>
   </div>
 </div>
 
-<!-- ── MAIN APP ───────────────────────────────────── -->
+<!-- APP -->
 <div id="app-screen" class="screen">
-
-  <!-- TOP BAR -->
   <header class="topbar">
-    <div class="topbar-left">
-      <span class="topbar-date" id="topbar-date"></span>
-    </div>
-    <div class="topbar-center">
-      <span class="topbar-user" id="topbar-user"></span>
+    <div class="topbar-brand">
+      <div class="topbar-icon">🛵</div>
+      <div>
+        <div class="topbar-name">MotoTrack</div>
+        <div class="topbar-user" id="tb-user"></div>
+      </div>
     </div>
     <div class="topbar-right">
-      <button id="logout-btn" class="icon-btn">⏻</button>
+      <span class="topbar-date" id="tb-date"></span>
+      <button class="icon-btn" id="btn-logout" title="Cerrar sesión">⏻</button>
     </div>
   </header>
 
-  <!-- PAGES -->
   <main class="pages">
-
-    <!-- ── PAGE: INICIO ── -->
+    <!-- INICIO -->
     <section id="page-inicio" class="page active">
-      <div class="summary-hero">
-        <div class="hero-earn">
-          <span class="hero-label">Ganado hoy</span>
-          <span class="hero-amount" id="sum-today">$0</span>
+      <div class="hero-card">
+        <div class="hero-left">
+          <div class="hero-lbl">Ganado hoy</div>
+          <div class="hero-amt" id="h-today">$0</div>
+          <div class="hero-sub" id="h-sub">0 servicios · 0 km</div>
         </div>
-        <div class="meta-ring-wrap">
-          <svg class="meta-ring" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="42" fill="none" stroke="#1e2530" stroke-width="8"/>
-            <circle cx="50" cy="50" r="42" fill="none" stroke="#FF6B00" stroke-width="8"
-              stroke-dasharray="264" stroke-dashoffset="264" id="meta-arc"
+        <div class="ring-wrap">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#22263a" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#FF6B00" stroke-width="10"
+              stroke-dasharray="251.2" stroke-dashoffset="251.2" id="ring-arc"
               stroke-linecap="round" transform="rotate(-90 50 50)"/>
           </svg>
-          <div class="meta-ring-text">
-            <span id="meta-pct">0%</span>
-            <span class="meta-ring-label">meta</span>
+          <div class="ring-text">
+            <span class="ring-pct" id="ring-pct">0%</span>
+            <span class="ring-lbl">meta</span>
           </div>
         </div>
       </div>
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-icon">🛵</span>
-          <span class="stat-val" id="sum-services">0</span>
-          <span class="stat-lbl">servicios</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">🎁</span>
-          <span class="stat-val" id="sum-tips">$0</span>
-          <span class="stat-lbl">propinas</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">⏱</span>
-          <span class="stat-val" id="sum-time">0h 0m</span>
-          <span class="stat-lbl">trabajado</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">📈</span>
-          <span class="stat-val" id="sum-avg">$0</span>
-          <span class="stat-lbl">por servicio</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">⚡</span>
-          <span class="stat-val" id="sum-perhour">$0</span>
-          <span class="stat-lbl">por hora</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">📍</span>
-          <span class="stat-val" id="sum-km">0 km</span>
-          <span class="stat-lbl">recorridos</span>
-        </div>
+      <div class="stat-grid">
+        <div class="stat-item"><span class="stat-emoji">🎁</span><span class="stat-val" id="h-tips">$0</span><span class="stat-lbl">propinas</span></div>
+        <div class="stat-item"><span class="stat-emoji">⏱</span><span class="stat-val" id="h-time">0h 0m</span><span class="stat-lbl">trabajado</span></div>
+        <div class="stat-item"><span class="stat-emoji">📈</span><span class="stat-val" id="h-avg">$0</span><span class="stat-lbl">promedio</span></div>
+        <div class="stat-item"><span class="stat-emoji">⚡</span><span class="stat-val" id="h-hr">$0</span><span class="stat-lbl">por hora</span></div>
+        <div class="stat-item"><span class="stat-emoji">📍</span><span class="stat-val" id="h-km">0 km</span><span class="stat-lbl">recorridos</span></div>
+        <div class="stat-item"><span class="stat-emoji">🛵</span><span class="stat-val" id="h-count">0</span><span class="stat-lbl">servicios</span></div>
       </div>
 
-      <div class="section-title">Últimas entregas</div>
-      <div id="recent-list" class="delivery-list">
-        <div class="empty-state">Sin entregas hoy.<br>¡Registra tu primera!</div>
-      </div>
+      <div class="sec-title">Últimas entregas hoy</div>
+      <div class="d-list" id="recent-list"><div class="empty">Sin entregas hoy.<br>¡Registra tu primera entrega!</div></div>
     </section>
 
-    <!-- ── PAGE: REGISTRO ── -->
+    <!-- REGISTRAR -->
     <section id="page-registro" class="page">
-      <div class="page-header">
-        <h2>Nueva entrega</h2>
-      </div>
-      <div class="form-card">
-        <div class="form-row two-col">
-          <div class="input-group">
-            <label>Hora inicio</label>
-            <input id="f-start" type="time" />
-          </div>
-          <div class="input-group">
-            <label>Hora fin</label>
-            <input id="f-end" type="time" />
-          </div>
+      <div class="page-title">Nueva entrega</div>
+      <div class="form-section">
+        <div class="row2">
+          <div class="field"><label>Hora inicio</label><input id="f-start" type="time"/></div>
+          <div class="field"><label>Hora fin</label><input id="f-end" type="time"/></div>
         </div>
-        <div class="form-row two-col">
-          <div class="input-group">
-            <label>Distancia (km)</label>
-            <input id="f-km" type="number" step="0.1" min="0" placeholder="0.0" inputmode="decimal"/>
-          </div>
-          <div class="input-group">
-            <label>Valor cobrado</label>
-            <input id="f-value" type="number" min="0" placeholder="$0" inputmode="numeric"/>
-          </div>
+        <div class="row2">
+          <div class="field"><label>Distancia (km)</label><input id="f-km" type="number" step="0.1" min="0" placeholder="0.0" inputmode="decimal"/></div>
+          <div class="field"><label>Valor cobrado</label><input id="f-value" type="number" min="0" placeholder="$0" inputmode="numeric"/></div>
         </div>
-        <div class="form-row two-col">
-          <div class="input-group">
-            <label>Propina</label>
-            <input id="f-tip" type="number" min="0" placeholder="$0" inputmode="numeric"/>
-          </div>
-          <div class="input-group">
-            <label>Plataforma</label>
+        <div class="row2">
+          <div class="field"><label>Propina</label><input id="f-tip" type="number" min="0" placeholder="$0" inputmode="numeric"/></div>
+          <div class="field"><label>Plataforma</label>
             <select id="f-platform">
               <option value="">Seleccionar...</option>
-              <option value="Rappi">Rappi</option>
-              <option value="Didi Food">Didi Food</option>
-              <option value="PedidosYa">PedidosYa</option>
-              <option value="iFood">iFood</option>
-              <option value="Mensajería privada">Mensajería privada</option>
-              <option value="Otra">Otra</option>
+              <option>Rappi</option><option>Didi Food</option><option>PedidosYa</option>
+              <option>iFood</option><option>Mensajería privada</option><option>Otra</option>
             </select>
           </div>
         </div>
-        <div class="input-group">
-          <label>Observaciones</label>
-          <textarea id="f-notes" rows="2" placeholder="Cliente difícil, zona peligrosa, etc."></textarea>
-        </div>
-        <button id="save-delivery-btn" class="btn-primary full">Guardar entrega</button>
+        <div class="field"><label>Observaciones</label><textarea id="f-notes" rows="2" placeholder="Zona peligrosa, cliente difícil..."></textarea></div>
+        <button class="btn-save" id="btn-save-delivery">Guardar entrega</button>
       </div>
 
-      <div class="page-header" style="margin-top:20px">
-        <h2>Hoy – historial</h2>
-      </div>
-      <div id="today-list" class="delivery-list">
-        <div class="empty-state">Sin entregas registradas hoy.</div>
-      </div>
+      <div class="page-title" style="margin-top:20px">Historial de hoy</div>
+      <div class="d-list" id="today-list"><div class="empty">Sin entregas registradas.</div></div>
     </section>
 
-    <!-- ── PAGE: GASOLINA ── -->
+    <!-- GASOLINA -->
     <section id="page-gasolina" class="page">
-      <div class="page-header"><h2>Control de gasolina</h2></div>
-
-      <div class="fuel-stats-row">
-        <div class="fuel-stat">
-          <span class="fuel-big" id="fuel-consume">–</span>
-          <span class="fuel-lbl">km/galón</span>
-        </div>
-        <div class="fuel-stat">
-          <span class="fuel-big" id="fuel-cpkm">–</span>
-          <span class="fuel-lbl">costo/km</span>
-        </div>
-        <div class="fuel-stat">
-          <span class="fuel-big" id="fuel-net">–</span>
-          <span class="fuel-lbl">ganancia neta</span>
-        </div>
+      <div class="page-title">Control de gasolina</div>
+      <div class="fuel-row">
+        <div class="fuel-kpi"><span class="fuel-kpi-v" id="g-consume">–</span><span class="fuel-kpi-l">km/galón</span></div>
+        <div class="fuel-kpi"><span class="fuel-kpi-v" id="g-cpkm">–</span><span class="fuel-kpi-l">costo/km</span></div>
+        <div class="fuel-kpi" style="border-color:rgba(34,197,94,.3)"><span class="fuel-kpi-v" id="g-net" style="color:var(--green)">–</span><span class="fuel-kpi-l">neta total</span></div>
       </div>
-
-      <div class="form-card">
-        <div class="section-title" style="margin:0 0 12px">Registrar tanqueada</div>
-        <div class="form-row two-col">
-          <div class="input-group">
-            <label>Fecha</label>
-            <input id="g-date" type="date" />
-          </div>
-          <div class="input-group">
-            <label>Valor gastado</label>
-            <input id="g-cost" type="number" min="0" placeholder="$0" inputmode="numeric"/>
-          </div>
+      <div class="form-section">
+        <div class="sec-title" style="margin:0 0 2px">Registrar tanqueada</div>
+        <div class="row2">
+          <div class="field"><label>Fecha</label><input id="g-date" type="date"/></div>
+          <div class="field"><label>Valor gastado</label><input id="g-cost" type="number" min="0" placeholder="$0" inputmode="numeric"/></div>
         </div>
-        <div class="form-row two-col">
-          <div class="input-group">
-            <label>Galones / litros</label>
-            <input id="g-liters" type="number" step="0.01" min="0" placeholder="0.0" inputmode="decimal"/>
-          </div>
-          <div class="input-group">
-            <label>Km al momento</label>
-            <input id="g-odo" type="number" min="0" placeholder="odómetro" inputmode="numeric"/>
-          </div>
+        <div class="row2">
+          <div class="field"><label>Galones/litros</label><input id="g-liters" type="number" step="0.01" min="0" placeholder="0.0" inputmode="decimal"/></div>
+          <div class="field"><label>Km odómetro</label><input id="g-odo" type="number" min="0" placeholder="ej: 12500" inputmode="numeric"/></div>
         </div>
-        <button id="save-fuel-btn" class="btn-primary full">Registrar tanqueada</button>
+        <button class="btn-save" id="btn-save-fuel">Registrar tanqueada</button>
       </div>
-
-      <div class="section-title" style="margin-top:20px">Historial</div>
-      <div id="fuel-list" class="delivery-list">
-        <div class="empty-state">Sin tanqueadas registradas.</div>
-      </div>
+      <div class="sec-title" style="margin-top:20px">Historial</div>
+      <div class="d-list" id="fuel-list"><div class="empty">Sin tanqueadas registradas.</div></div>
     </section>
 
-    <!-- ── PAGE: METAS ── -->
+    <!-- METAS -->
     <section id="page-metas" class="page">
-      <div class="page-header"><h2>Metas</h2></div>
-
-      <div class="form-card">
-        <div class="input-group">
-          <label>Meta diaria ($)</label>
-          <input id="m-daily" type="number" min="0" placeholder="Ej: 80000" inputmode="numeric"/>
-        </div>
-        <div class="input-group">
-          <label>Meta semanal ($)</label>
-          <input id="m-weekly" type="number" min="0" placeholder="Ej: 400000" inputmode="numeric"/>
-        </div>
-        <div class="input-group">
-          <label>Meta mensual ($)</label>
-          <input id="m-monthly" type="number" min="0" placeholder="Ej: 1600000" inputmode="numeric"/>
-        </div>
-        <button id="save-goals-btn" class="btn-primary full">Guardar metas</button>
+      <div class="page-title">Metas</div>
+      <div class="form-section">
+        <div class="field"><label>Meta diaria ($)</label><input id="m-daily" type="number" min="0" placeholder="Ej: 80000" inputmode="numeric"/></div>
+        <div class="field"><label>Meta semanal ($)</label><input id="m-weekly" type="number" min="0" placeholder="Ej: 400000" inputmode="numeric"/></div>
+        <div class="field"><label>Meta mensual ($)</label><input id="m-monthly" type="number" min="0" placeholder="Ej: 1600000" inputmode="numeric"/></div>
+        <button class="btn-save" id="btn-save-goals">Guardar metas</button>
       </div>
-
-      <div class="goals-progress-wrap" id="goals-progress"></div>
+      <div id="goals-wrap" style="margin-top:16px"></div>
     </section>
 
-    <!-- ── PAGE: ESTADÍSTICAS ── -->
+    <!-- ESTADÍSTICAS -->
     <section id="page-stats" class="page">
-      <div class="page-header"><h2>Estadísticas</h2></div>
-
-      <div class="stats-period-tabs">
-        <button class="period-tab active" data-period="week">Semana</button>
-        <button class="period-tab" data-period="month">Mes</button>
-        <button class="period-tab" data-period="all">Todo</button>
+      <div class="page-title">Estadísticas</div>
+      <div class="period-tabs">
+        <button class="ptab active" data-p="week">Semana</button>
+        <button class="ptab" data-p="month">Mes</button>
+        <button class="ptab" data-p="all">Todo</button>
       </div>
-
       <div class="stats-block">
         <div class="stats-block-title">Resumen del período</div>
-        <div class="stats-grid small">
-          <div class="stat-card"><span class="stat-icon">💰</span><span class="stat-val" id="st-total">$0</span><span class="stat-lbl">total</span></div>
-          <div class="stat-card"><span class="stat-icon">🛵</span><span class="stat-val" id="st-count">0</span><span class="stat-lbl">servicios</span></div>
-          <div class="stat-card"><span class="stat-icon">📊</span><span class="stat-val" id="st-daily-avg">$0</span><span class="stat-lbl">prom. diario</span></div>
-          <div class="stat-card"><span class="stat-icon">🏆</span><span class="stat-val" id="st-best-day">–</span><span class="stat-lbl">mejor día</span></div>
+        <div class="stat-grid" style="margin:0">
+          <div class="stat-item"><span class="stat-emoji">💰</span><span class="stat-val" id="st-total">$0</span><span class="stat-lbl">total</span></div>
+          <div class="stat-item"><span class="stat-emoji">🛵</span><span class="stat-val" id="st-count">0</span><span class="stat-lbl">servicios</span></div>
+          <div class="stat-item"><span class="stat-emoji">📊</span><span class="stat-val" id="st-avg">$0</span><span class="stat-lbl">prom diario</span></div>
+          <div class="stat-item"><span class="stat-emoji">🏆</span><span class="stat-val" id="st-best">–</span><span class="stat-lbl">mejor día</span></div>
+          <div class="stat-item"><span class="stat-emoji">⏱</span><span class="stat-val" id="st-time">0h</span><span class="stat-lbl">trabajado</span></div>
+          <div class="stat-item"><span class="stat-emoji">⚡</span><span class="stat-val" id="st-hr">$0</span><span class="stat-lbl">por hora</span></div>
         </div>
       </div>
-
-      <div class="stats-block">
-        <div class="stats-block-title">Por día de la semana</div>
-        <div id="chart-weekday" class="bar-chart-wrap"></div>
-      </div>
-
-      <div class="stats-block">
-        <div class="stats-block-title">Por horario</div>
-        <div id="chart-hour" class="bar-chart-wrap"></div>
-      </div>
-
-      <div class="stats-block">
-        <div class="stats-block-title">Por plataforma</div>
-        <div id="chart-platform" class="bar-chart-wrap"></div>
-      </div>
+      <div class="stats-block"><div class="stats-block-title">Por día de la semana</div><div id="ch-weekday"></div></div>
+      <div class="stats-block"><div class="stats-block-title">Por horario</div><div id="ch-hour"></div></div>
+      <div class="stats-block"><div class="stats-block-title">Por plataforma</div><div id="ch-platform"></div></div>
     </section>
-
   </main>
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-page="inicio">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span>Inicio</span>
     </button>
     <button class="nav-btn" data-page="registro">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
       <span>Registrar</span>
     </button>
     <button class="nav-btn" data-page="gasolina">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V7a2 2 0 012-2h10a2 2 0 012 2v2"/><path d="M19 11v4a2 2 0 01-2 2h-1"/><path d="M17 5l3 3-3 3"/><rect x="3" y="11" width="10" height="7" rx="1"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V7a2 2 0 012-2h10a2 2 0 012 2v2"/><path d="M17 5l3 3-3 3"/><rect x="3" y="11" width="10" height="7" rx="1"/></svg>
       <span>Gasolina</span>
     </button>
     <button class="nav-btn" data-page="metas">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
       <span>Metas</span>
     </button>
     <button class="nav-btn" data-page="stats">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       <span>Stats</span>
     </button>
   </nav>
-
 </div>
+
+<div id="toast"></div>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script src="app.js"></script>
+<script>
+// ── CONFIG FIREBASE ── Reemplaza con tus datos
+const firebaseConfig = {
+  apiKey:            "TU_API_KEY",
+  authDomain:        "TU_AUTH_DOMAIN",
+  projectId:         "TU_PROJECT_ID",
+  storageBucket:     "TU_STORAGE_BUCKET",
+  messagingSenderId: "TU_SENDER_ID",
+  appId:             "TU_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ── STATE ──
+let user=null, deliveries=[], fuelLogs=[], goals={daily:0,weekly:0,monthly:0};
+let pinBuf='', activePeriod='week', lastPlatform=localStorage.getItem('lp')||'';
+let unsubD=null, unsubF=null;
+
+const $=id=>document.getElementById(id);
+const DAYS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const fmtS=n=>{if(n>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(n>=1000)return'$'+Math.round(n/1000)+'k';return'$'+Math.round(n)};
+const today=()=>new Date().toISOString().slice(0,10);
+const uPath=()=>`users/${user.name}_${user.pin}`;
+const clean=o=>{const r={};for(const[k,v]of Object.entries(o))if(v!==undefined&&v!==null&&v!=='')r[k]=v;return r};
+function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast show '+(type==='ok'?'ok':type==='err'?'err':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2500)}
+function diffMin(s,e){let a=s.split(':').map(Number),b=e.split(':').map(Number);let d=(b[0]-a[0])*60+(b[1]-a[1]);return d<0?d+1440:d}
+function fmtDur(m){const h=Math.floor(m/60);return h>0?`${h}h ${m%60}m`:`${m}m`}
+
+// ── LOGIN ──
+$('btn-continue').onclick=()=>{
+  const n=$('ln-name').value.trim();
+  if(!n){showErr('err-name','Escribe tu nombre');return}
+  $('back-name').textContent=n;
+  $('step-name').style.display='none';
+  $('step-pin').style.display='flex';
+  $('step-pin').style.flexDirection='column';
+  $('step-pin').style.gap='20px';
+};
+$('ln-name').onkeydown=e=>{if(e.key==='Enter')$('btn-continue').click()};
+$('btn-back').onclick=()=>{$('step-pin').style.display='none';$('step-name').style.display='flex';$('step-name').style.flexDirection='column';$('step-name').style.gap='20px';pinBuf='';updateDots()};
+document.querySelectorAll('.num-btn').forEach(b=>b.addEventListener('click',()=>handlePin(b.dataset.n)));
+
+function handlePin(n){
+  if(n==='del'){if(pinBuf.length)pinBuf=pinBuf.slice(0,-1)}
+  else if(n==='ok'){doLogin()}
+  else if(pinBuf.length<4)pinBuf+=n;
+  updateDots();
+  if(pinBuf.length===4)setTimeout(doLogin,200);
+}
+function updateDots(){document.querySelectorAll('#pin-dots .dot').forEach((d,i)=>d.classList.toggle('filled',i<pinBuf.length))}
+function showErr(id,msg){const e=$(id);e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000)}
+
+async function doLogin(){
+  const name=$('ln-name').value.trim(), pin=pinBuf;
+  if(pin.length!==4){showErr('err-pin','PIN de 4 dígitos');return}
+  try{
+    const doc=`users/${name}_${pin}`;
+    const snap=await db.doc(doc).get();
+    if(!snap.exists)await db.doc(doc).set({name,pin,createdAt:new Date().toISOString()});
+    user={name,pin};
+    $('tb-user').textContent=name;
+    $('tb-date').textContent=new Date().toLocaleDateString('es-CO',{weekday:'short',day:'numeric',month:'short'});
+    $('login-screen').classList.remove('active');
+    $('app-screen').classList.add('active');
+    loadData();
+  }catch(e){showErr('err-pin','Error conectando a Firebase. Verifica la configuración.');console.error(e)}
+}
+
+$('btn-logout').onclick=()=>{if(unsubD)unsubD();if(unsubF)unsubF();user=null;deliveries=[];fuelLogs=[];pinBuf='';updateDots();$('ln-name').value='';$('step-pin').style.display='none';$('step-name').style.display='flex';$('step-name').style.flexDirection='column';$('step-name').style.gap='20px';$('login-screen').classList.add('active');$('app-screen').classList.remove('active')};
+
+// ── NAV ──
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  $('page-'+b.dataset.page).classList.add('active');
+  if(b.dataset.page==='stats')renderStats();
+  if(b.dataset.page==='metas')renderGoals();
+}));
+
+// ── LOAD ──
+function loadData(){
+  db.doc(uPath()+'/config/goals').get().then(s=>{if(s.exists){goals=s.data();fillGoalForm()}});
+  unsubD=db.collection(uPath()+'/deliveries').orderBy('date','desc').onSnapshot(s=>{
+    deliveries=s.docs.map(d=>({id:d.id,...d.data()}));
+    if(lastPlatform)$('f-platform').value=lastPlatform;
+    renderHome();renderTodayList();
+  });
+  unsubF=db.collection(uPath()+'/fuel').orderBy('date','desc').onSnapshot(s=>{
+    fuelLogs=s.docs.map(d=>({id:d.id,...d.data()}));renderFuel();
+  });
+}
+
+// ── DELIVERY FORM ──
+(()=>{
+  const now=new Date(), pad=n=>String(n).padStart(2,'0');
+  const ts=pad(now.getHours())+':'+pad(now.getMinutes());
+  $('f-start').value=ts;$('f-end').value=ts;
+  if(lastPlatform)$('f-platform').value=lastPlatform;
+  $('f-platform').onchange=()=>{if($('f-platform').value){lastPlatform=$('f-platform').value;localStorage.setItem('lp',lastPlatform)}};
+  $('btn-save-delivery').onclick=saveDelivery;
+})();
+
+async function saveDelivery(){
+  const s=$('f-start').value,e=$('f-end').value,km=parseFloat($('f-km').value)||0,
+        val=parseFloat($('f-value').value)||0,tip=parseFloat($('f-tip').value)||0,
+        plat=$('f-platform').value,notes=$('f-notes').value.trim();
+  if(!s||!e){toast('Indica hora inicio y fin','err');return}
+  if(val<=0){toast('Agrega el valor cobrado','err');return}
+  if(!plat){toast('Selecciona la plataforma','err');return}
+  const mins=diffMin(s,e);
+  try{
+    await db.collection(uPath()+'/deliveries').add(clean({date:today(),createdAt:new Date().toISOString(),start:s,end:e,km,value:val,tip,platform:plat,notes,mins}));
+    $('f-km').value='';$('f-value').value='';$('f-tip').value='';$('f-notes').value='';
+    const n=new Date(),p=n=>String(n).padStart(2,'0');
+    const t=p(n.getHours())+':'+p(n.getMinutes());$('f-start').value=t;$('f-end').value=t;
+    toast('✅ Entrega guardada','ok');
+  }catch(e){toast('Error al guardar','err');console.error(e)}
+}
+async function delDelivery(id){if(!confirm('¿Eliminar entrega?'))return;try{await db.doc(uPath()+`/deliveries/${id}`).delete()}catch(e){toast('Error','err')}}
+
+// ── RENDER HOME ──
+function renderHome(){
+  const td=today(),list=deliveries.filter(d=>d.date===td);
+  const earn=list.reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+  const tips=list.reduce((s,d)=>s+(d.tip||0),0);
+  const km=list.reduce((s,d)=>s+(d.km||0),0);
+  const mins=list.reduce((s,d)=>s+(d.mins||0),0);
+  const avg=list.length?earn/list.length:0;
+  const hr=mins?earn/mins*60:0;
+  $('h-today').textContent=fmtS(earn);
+  $('h-sub').textContent=list.length+' servicios · '+km.toFixed(1)+' km';
+  $('h-tips').textContent=fmtS(tips);
+  $('h-time').textContent=fmtDur(mins);
+  $('h-avg').textContent=fmtS(avg);
+  $('h-hr').textContent=fmtS(hr);
+  $('h-km').textContent=km.toFixed(1)+' km';
+  $('h-count').textContent=list.length;
+  if(goals.daily>0){const p=Math.min(earn/goals.daily,1);$('ring-arc').setAttribute('stroke-dashoffset',251.2-251.2*p);$('ring-pct').textContent=Math.round(p*100)+'%'}
+  const el=$('recent-list'),sl=list.slice(0,5);
+  el.innerHTML=sl.length?sl.map(dCard).join(''):'<div class="empty">Sin entregas hoy.<br>¡Registra tu primera!</div>';
+  el.querySelectorAll('.d-del').forEach(b=>b.addEventListener('click',()=>delDelivery(b.dataset.id)));
+}
+function renderTodayList(){
+  const td=today(),list=deliveries.filter(d=>d.date===td);
+  const el=$('today-list');
+  el.innerHTML=list.length?list.map(dCard).join(''):'<div class="empty">Sin entregas registradas.</div>';
+  el.querySelectorAll('.d-del').forEach(b=>b.addEventListener('click',()=>delDelivery(b.dataset.id)));
+}
+function dCard(d){
+  const tot=(d.value||0)+(d.tip||0);
+  const tags=[];
+  if(d.km)tags.push('📍 '+d.km+' km');
+  if(d.mins)tags.push('⏱ '+fmtDur(d.mins));
+  if(d.tip)tags.push('🎁 '+fmtS(d.tip));
+  if(d.notes)tags.push('📝 '+d.notes);
+  return`<div class="d-card"><div class="d-top"><span class="d-platform">${d.platform||'—'}</span><span class="d-time">${d.start} – ${d.end}</span><button class="d-del" data-id="${d.id}">🗑</button></div><div class="d-vals"><div class="d-v">${fmtS(tot)}<small>total</small></div><div class="d-v">${fmtS(d.value||0)}<small>servicio</small></div>${d.tip?`<div class="d-v">${fmtS(d.tip)}<small>propina</small></div>`:''}</div>${tags.length?`<div class="d-tags">${tags.map(t=>`<span class="d-tag">${t}</span>`).join('')}</div>`:''}</div>`;
+}
+
+// ── FUEL ──
+$('g-date').value=today();
+$('btn-save-fuel').onclick=async()=>{
+  const date=$('g-date').value||today(),cost=parseFloat($('g-cost').value)||0,
+        liters=parseFloat($('g-liters').value)||0,odo=parseFloat($('g-odo').value)||0;
+  if(cost<=0){toast('Agrega el valor gastado','err');return}
+  try{await db.collection(uPath()+'/fuel').add(clean({date,cost,liters,odo,createdAt:new Date().toISOString()}));$('g-cost').value='';$('g-liters').value='';$('g-odo').value='';toast('⛽ Tanqueada guardada','ok')}
+  catch(e){toast('Error','err');console.error(e)}
+};
+async function delFuel(id){if(!confirm('¿Eliminar?'))return;try{await db.doc(uPath()+`/fuel/${id}`).delete()}catch(e){toast('Error','err')}}
+
+function renderFuel(){
+  const el=$('fuel-list');
+  if(!fuelLogs.length){el.innerHTML='<div class="empty">Sin tanqueadas.</div>';$('g-consume').textContent='–';$('g-cpkm').textContent='–';$('g-net').textContent='–';return}
+  const totalCost=fuelLogs.reduce((s,f)=>s+(f.cost||0),0);
+  const totalL=fuelLogs.reduce((s,f)=>s+(f.liters||0),0);
+  const sorted=[...fuelLogs].filter(f=>f.odo).sort((a,b)=>a.odo-b.odo);
+  let kmFuel=0;if(sorted.length>=2)kmFuel=sorted[sorted.length-1].odo-sorted[0].odo;
+  const totalKm=deliveries.reduce((s,d)=>s+(d.km||0),0);
+  const totalEarn=deliveries.reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+  if(totalL>0&&kmFuel>0)$('g-consume').textContent=(kmFuel/totalL).toFixed(1);
+  if(totalCost>0&&totalKm>0)$('g-cpkm').textContent=fmtS(totalCost/totalKm);
+  $('g-net').textContent=fmtS(totalEarn-totalCost);
+  el.innerHTML=fuelLogs.slice(0,20).map(f=>`<div class="fuel-card"><div><div class="fuel-card-date">${f.date}</div><div class="fuel-card-cost">${fmtS(f.cost||0)}</div></div><div class="fuel-card-meta">${f.liters?f.liters+' gal/lt':''} ${f.odo?'· 🛣 '+f.odo+' km':''}<br><button class="d-del" data-id="${f.id}">🗑</button></div></div>`).join('');
+  el.querySelectorAll('.d-del').forEach(b=>b.addEventListener('click',()=>delFuel(b.dataset.id)));
+}
+
+// ── GOALS ──
+$('btn-save-goals').onclick=async()=>{
+  goals.daily=parseFloat($('m-daily').value)||0;goals.weekly=parseFloat($('m-weekly').value)||0;goals.monthly=parseFloat($('m-monthly').value)||0;
+  try{await db.doc(uPath()+'/config/goals').set(goals);toast('🎯 Metas guardadas','ok');renderGoals();renderHome()}
+  catch(e){toast('Error','err');console.error(e)}
+};
+function fillGoalForm(){if(goals.daily)$('m-daily').value=goals.daily;if(goals.weekly)$('m-weekly').value=goals.weekly;if(goals.monthly)$('m-monthly').value=goals.monthly;renderGoals()}
+function renderGoals(){
+  const now=new Date(),td=today();
+  const day=now.getDay()||7,ws=new Date(now);ws.setDate(now.getDate()-day+1);ws.setHours(0,0,0,0);
+  const ms=new Date(now.getFullYear(),now.getMonth(),1);
+  const ed=deliveries.filter(d=>d.date===td).reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+  const ew=deliveries.filter(d=>new Date(d.date)>=ws).reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+  const em=deliveries.filter(d=>new Date(d.date)>=ms).reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+  $('goals-wrap').innerHTML=[{n:'Hoy',g:goals.daily,e:ed},{n:'Semana',g:goals.weekly,e:ew},{n:'Mes',g:goals.monthly,e:em}].map(c=>{
+    if(!c.g)return`<div class="goal-card"><div class="goal-head"><span class="goal-name">${c.n}</span><span class="goal-nums" style="color:var(--muted)">Sin meta configurada</span></div></div>`;
+    const p=Math.min(c.e/c.g,1),done=p>=1;
+    return`<div class="goal-card"><div class="goal-head"><span class="goal-name">${c.n} ${done?'✅':''}</span><span class="goal-nums">${fmtS(c.e)} / ${fmtS(c.g)}</span></div><div class="goal-track"><div class="goal-fill ${done?'done':''}" style="width:${Math.round(p*100)}%"></div></div><div class="goal-pct-txt">${Math.round(p*100)}%</div></div>`;
+  }).join('');
+}
+
+// ── STATS ──
+document.querySelectorAll('.ptab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.ptab').forEach(x=>x.classList.remove('active'));t.classList.add('active');activePeriod=t.dataset.p;renderStats()}));
+
+function getPeriod(){
+  const now=new Date();
+  if(activePeriod==='all')return deliveries;
+  if(activePeriod==='week'){const d=now.getDay()||7,s=new Date(now);s.setDate(now.getDate()-d+1);s.setHours(0,0,0,0);return deliveries.filter(x=>new Date(x.date)>=s)}
+  const s=new Date(now.getFullYear(),now.getMonth(),1);return deliveries.filter(x=>new Date(x.date)>=s);
+}
+function renderStats(){
+  const list=getPeriod();
+  const total=list.reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+  const days=[...new Set(list.map(d=>d.date))];
+  const mins=list.reduce((s,d)=>s+(d.mins||0),0);
+  const byDate={};list.forEach(d=>{byDate[d.date]=(byDate[d.date]||0)+(d.value||0)+(d.tip||0)});
+  const best=Object.entries(byDate).sort((a,b)=>b[1]-a[1])[0];
+  $('st-total').textContent=fmtS(total);$('st-count').textContent=list.length;
+  $('st-avg').textContent=fmtS(days.length?total/days.length:0);
+  $('st-best').textContent=best?DAYS[new Date(best[0]).getDay()]:'–';
+  $('st-time').textContent=fmtDur(mins);$('st-hr').textContent=fmtS(mins?total/mins*60:0);
+  barChart('ch-weekday',weekdayData(list));barChart('ch-hour',hourData(list));barChart('ch-platform',platformData(list));
+}
+function weekdayData(l){const s=Array(7).fill(0),c=Array(7).fill(0);l.forEach(d=>{const i=new Date(d.date+'T12:00').getDay();s[i]+=(d.value||0)+(d.tip||0);c[i]++});return DAYS.map((lb,i)=>({label:lb,value:s[i],count:c[i]}))}
+function hourData(l){const r=['6-9','9-12','12-15','15-18','18-21','21-24'],b=[[6,9],[9,12],[12,15],[15,18],[18,21],[21,24]],s=Array(6).fill(0);l.forEach(d=>{if(!d.start)return;const h=parseInt(d.start);b.forEach(([a,z],i)=>{if(h>=a&&h<z)s[i]+=(d.value||0)+(d.tip||0)})});return r.map((lb,i)=>({label:lb,value:s[i]}))}
+function platformData(l){const s={},c={};l.forEach(d=>{const p=d.platform||'Otra';s[p]=(s[p]||0)+(d.value||0)+(d.tip||0);c[p]=(c[p]||0)+1});return Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([lb,v])=>({label:lb,value:v}))}
+function barChart(id,data){
+  const el=$(id),max=Math.max(...data.map(d=>d.value),1);
+  const bi=data.reduce((bi,d,i)=>d.value>data[bi].value?i:bi,0);
+  if(!data.some(d=>d.value>0)){el.innerHTML='<div class="empty">Sin datos.</div>';return}
+  el.innerHTML=data.map((d,i)=>`<div class="bar-row"><span class="bar-lbl">${d.label}</span><div class="bar-track"><div class="bar-fill ${i===bi&&d.value>0?'top':''}" style="width:${(d.value/max*100).toFixed(1)}%">${d.value>0?`<span class="bval">${fmtS(d.value)}</span>`:''}</div></div></div>`).join('');
+}
+</script>
 </body>
 </html>
