@@ -183,6 +183,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .bar-fill .bval{font-size:11px;font-family:var(--font-n);font-weight:600;color:#fff;white-space:nowrap}
 .bar-fill.top{background:var(--green)}
 
+/* ── NET BANNER ── */
+.net-banner{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:12px}
+.net-banner-row{display:flex;align-items:center;justify-content:space-around;gap:4px}
+.net-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.net-lbl{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.4px;text-align:center}
+.net-val{font-family:var(--font-n);font-size:18px;font-weight:700;color:var(--text)}
+.net-val.green{color:var(--green)}.net-val.yellow{color:var(--yellow)}
+.net-sep{font-size:20px;color:var(--muted2);font-weight:700;flex-shrink:0}
+.net-note{font-size:11px;color:var(--muted2);text-align:center;margin-top:10px;line-height:1.5}
+
 /* ── TOAST ── */
 #toast{position:fixed;bottom:calc(var(--nav-h)+14px);left:50%;transform:translateX(-50%) translateY(12px);
   background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;
@@ -288,11 +298,31 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
       <div class="stat-grid">
         <div class="stat-item"><span class="stat-emoji">🎁</span><span class="stat-val" id="h-tips">$0</span><span class="stat-lbl">propinas</span></div>
-        <div class="stat-item"><span class="stat-emoji">⏱</span><span class="stat-val" id="h-time">0h 0m</span><span class="stat-lbl">trabajado</span></div>
+        <div class="stat-item"><span class="stat-emoji">⏱</span><span class="stat-val" id="h-time">–</span><span class="stat-lbl">trabajado</span></div>
         <div class="stat-item"><span class="stat-emoji">📈</span><span class="stat-val" id="h-avg">$0</span><span class="stat-lbl">promedio</span></div>
-        <div class="stat-item"><span class="stat-emoji">⚡</span><span class="stat-val" id="h-hr">$0</span><span class="stat-lbl">por hora</span></div>
+        <div class="stat-item"><span class="stat-emoji">⚡</span><span class="stat-val" id="h-hr">–</span><span class="stat-lbl">por hora</span></div>
         <div class="stat-item"><span class="stat-emoji">📍</span><span class="stat-val" id="h-km">0 km</span><span class="stat-lbl">recorridos</span></div>
         <div class="stat-item"><span class="stat-emoji">🛵</span><span class="stat-val" id="h-count">0</span><span class="stat-lbl">servicios</span></div>
+      </div>
+      <!-- NETA HOY: ganancia bruta - gasto gasolina proporcional -->
+      <div class="net-banner" id="net-banner" style="display:none">
+        <div class="net-banner-row">
+          <div class="net-col">
+            <span class="net-lbl">💰 Bruto hoy</span>
+            <span class="net-val green" id="nb-gross">$0</span>
+          </div>
+          <div class="net-sep">−</div>
+          <div class="net-col">
+            <span class="net-lbl">⛽ Gasolina est.</span>
+            <span class="net-val yellow" id="nb-fuel">$0</span>
+          </div>
+          <div class="net-sep">=</div>
+          <div class="net-col">
+            <span class="net-lbl">✅ Neta real</span>
+            <span class="net-val" id="nb-net">$0</span>
+          </div>
+        </div>
+        <div class="net-note" id="nb-note"></div>
       </div>
 
       <div class="sec-title">Últimas entregas hoy</div>
@@ -517,7 +547,7 @@ function loadData(){
     renderHome();renderTodayList();
   });
   unsubF=db.collection(uPath()+'/fuel').orderBy('date','desc').onSnapshot(s=>{
-    fuelLogs=s.docs.map(d=>({id:d.id,...d.data()}));renderFuel();
+    fuelLogs=s.docs.map(d=>({id:d.id,...d.data()}));renderFuel();renderHome();renderHome();
   });
 }
 
@@ -557,19 +587,41 @@ function renderHome(){
   const km=list.reduce((s,d)=>s+(d.km||0),0);
   const mins=list.reduce((s,d)=>s+(d.mins||0),0);
   const avg=list.length?earn/list.length:0;
-  const hr=mins?earn/mins*60:0;
+  // "Por hora" solo si hay tiempo registrado (mins>0)
+  const hr=mins>0?earn/mins*60:0;
   $('h-today').textContent=fmtS(earn);
   $('h-sub').textContent=list.length+' servicios · '+km.toFixed(1)+' km';
   $('h-tips').textContent=fmtS(tips);
-  $('h-time').textContent=fmtDur(mins);
+  $('h-time').textContent=mins>0?fmtDur(mins):'–';
   $('h-avg').textContent=fmtS(avg);
-  $('h-hr').textContent=fmtS(hr);
+  $('h-hr').textContent=mins>0?fmtS(hr):'–';
   $('h-km').textContent=km.toFixed(1)+' km';
   $('h-count').textContent=list.length;
   if(goals.daily>0){const p=Math.min(earn/goals.daily,1);$('ring-arc').setAttribute('stroke-dashoffset',251.2-251.2*p);$('ring-pct').textContent=Math.round(p*100)+'%'}
+  // ── BANNER NETA REAL ──
+  calcNetBanner(earn, km);
   const el=$('recent-list'),sl=list.slice(0,5);
   el.innerHTML=sl.length?sl.map(dCard).join(''):'<div class="empty">Sin entregas hoy.<br>¡Registra tu primera!</div>';
   el.querySelectorAll('.d-del').forEach(b=>b.addEventListener('click',()=>delDelivery(b.dataset.id)));
+}
+
+function calcNetBanner(earnToday, kmToday){
+  // Necesitamos costo/km para estimar gasto de gasolina
+  const totalKmAll=deliveries.reduce((s,d)=>s+(d.km||0),0);
+  const totalFuelCost=fuelLogs.reduce((s,f)=>s+(f.cost||0),0);
+  const banner=$('net-banner');
+  if(!fuelLogs.length||totalKmAll===0){banner.style.display='none';return}
+  const cpkm=totalFuelCost/totalKmAll; // costo promedio por km
+  const fuelEstimate=kmToday*cpkm;
+  const netReal=earnToday-fuelEstimate;
+  banner.style.display='block';
+  $('nb-gross').textContent=fmtS(earnToday);
+  $('nb-fuel').textContent=fmtS(fuelEstimate);
+  const netEl=$('nb-net');
+  netEl.textContent=fmtS(netReal);
+  netEl.className='net-val '+(netReal>=0?'green':'');
+  netEl.style.color=netReal<0?'var(--red)':'';
+  $('nb-note').textContent='Costo estimado: '+fmtS(cpkm)+'/km · '+kmToday.toFixed(1)+' km recorridos hoy';
 }
 function renderTodayList(){
   const td=today(),list=deliveries.filter(d=>d.date===td);
@@ -600,16 +652,37 @@ async function delFuel(id){if(!confirm('¿Eliminar?'))return;try{await db.doc(uP
 
 function renderFuel(){
   const el=$('fuel-list');
-  if(!fuelLogs.length){el.innerHTML='<div class="empty">Sin tanqueadas.</div>';$('g-consume').textContent='–';$('g-cpkm').textContent='–';$('g-net').textContent='–';return}
-  const totalCost=fuelLogs.reduce((s,f)=>s+(f.cost||0),0);
-  const totalL=fuelLogs.reduce((s,f)=>s+(f.liters||0),0);
-  const sorted=[...fuelLogs].filter(f=>f.odo).sort((a,b)=>a.odo-b.odo);
-  let kmFuel=0;if(sorted.length>=2)kmFuel=sorted[sorted.length-1].odo-sorted[0].odo;
   const totalKm=deliveries.reduce((s,d)=>s+(d.km||0),0);
   const totalEarn=deliveries.reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
-  if(totalL>0&&kmFuel>0)$('g-consume').textContent=(kmFuel/totalL).toFixed(1);
-  if(totalCost>0&&totalKm>0)$('g-cpkm').textContent=fmtS(totalCost/totalKm);
+  if(!fuelLogs.length){
+    el.innerHTML='<div class="empty">Sin tanqueadas.<br>Registra tu primer gasto de gasolina.</div>';
+    $('g-consume').textContent='–';$('g-cpkm').textContent='–';$('g-net').textContent=fmtS(totalEarn);
+    return;
+  }
+  const totalCost=fuelLogs.reduce((s,f)=>s+(f.cost||0),0);
+  const totalL=fuelLogs.reduce((s,f)=>s+(f.liters||0),0);
+
+  // km/galón: usar odómetro si hay 2+ registros con odo, sino usar km de entregas
+  const sorted=[...fuelLogs].filter(f=>f.odo>0).sort((a,b)=>a.odo-b.odo);
+  let kmGalon='–';
+  if(sorted.length>=2&&totalL>0){
+    const kmOdo=sorted[sorted.length-1].odo-sorted[0].odo;
+    if(kmOdo>0)kmGalon=(kmOdo/totalL).toFixed(1);
+  } else if(totalKm>0&&totalL>0){
+    kmGalon=(totalKm/totalL).toFixed(1)+' *';
+  }
+  $('g-consume').textContent=kmGalon;
+
+  // costo/km: total gastado en gasolina / total km recorridos en entregas
+  if(totalCost>0&&totalKm>0){
+    $('g-cpkm').textContent=fmtS(totalCost/totalKm);
+  } else if(totalCost>0){
+    $('g-cpkm').textContent='sin km';
+  } else {
+    $('g-cpkm').textContent='–';
+  }
   $('g-net').textContent=fmtS(totalEarn-totalCost);
+
   el.innerHTML=fuelLogs.slice(0,20).map(f=>`<div class="fuel-card"><div><div class="fuel-card-date">${f.date}</div><div class="fuel-card-cost">${fmtS(f.cost||0)}</div></div><div class="fuel-card-meta">${f.liters?f.liters+' gal/lt':''} ${f.odo?'· 🛣 '+f.odo+' km':''}<br><button class="d-del" data-id="${f.id}">🗑</button></div></div>`).join('');
   el.querySelectorAll('.d-del').forEach(b=>b.addEventListener('click',()=>delFuel(b.dataset.id)));
 }
