@@ -191,6 +191,30 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .bar-fill .bval{font-size:11px;font-family:var(--font-n);font-weight:600;color:#fff;white-space:nowrap}
 .bar-fill.top{background:var(--green)}
 
+/* HISTORIAL TABS */
+.hist-tabs{display:flex;gap:8px;margin-bottom:14px}
+.htab{flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--muted2);font-size:13px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s}
+.htab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* DAY CARD */
+.day-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;margin-bottom:10px;overflow:hidden}
+.day-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;user-select:none}
+.day-header:active{background:var(--surface2)}
+.day-date{font-family:var(--font-n);font-size:14px;font-weight:700}
+.day-right{display:flex;align-items:center;gap:10px}
+.day-earn{font-family:var(--font-n);font-size:16px;font-weight:700;color:var(--green)}
+.day-count{font-size:11px;color:var(--muted2);background:var(--surface2);padding:2px 8px;border-radius:10px}
+.day-chevron{color:var(--muted2);font-size:14px;transition:transform .2s}
+.day-chevron.open{transform:rotate(90deg)}
+.day-body{display:none;border-top:1px solid var(--border);padding:10px}
+.day-body.open{display:block}
+.d-card-edit{cursor:pointer;transition:background .15s}
+.d-card-edit:active{background:var(--surface2)}
+.edit-hint{font-size:10px;color:var(--muted);text-align:right;margin-top:4px}
+
+/* MODAL */
+#edit-modal.show{display:flex}
+
 /* TOAST */
 #toast{position:fixed;bottom:calc(var(--nav-h)+14px);left:50%;transform:translateX(-50%) translateY(12px);background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:10px 20px;border-radius:20px;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -431,29 +455,76 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div id="goals-wrap" style="margin-top:16px"></div>
     </section>
 
-    <!-- ESTADÍSTICAS -->
-    <section id="page-stats" class="page">
-      <div class="page-title">Estadísticas</div>
-      <div class="period-tabs">
-        <button class="ptab active" data-p="week">Semana</button>
-        <button class="ptab" data-p="month">Mes</button>
-        <button class="ptab" data-p="all">Todo</button>
+    <!-- HISTORIAL + STATS -->
+    <section id="page-historial" class="page">
+      <div class="page-title">Historial</div>
+      <div class="hist-tabs">
+        <button class="htab active" data-ht="dias">📅 Por días</button>
+        <button class="htab" data-ht="stats">📊 Estadísticas</button>
       </div>
-      <div class="stats-block">
-        <div class="stats-block-title">Resumen del período</div>
-        <div class="stat-grid" style="margin:0">
-          <div class="stat-item"><span class="stat-emoji">💰</span><span class="stat-val" id="st-total">$0</span><span class="stat-lbl">total</span></div>
-          <div class="stat-item"><span class="stat-emoji">🛵</span><span class="stat-val" id="st-count">0</span><span class="stat-lbl">servicios</span></div>
-          <div class="stat-item"><span class="stat-emoji">📊</span><span class="stat-val" id="st-avg">$0</span><span class="stat-lbl">prom diario</span></div>
-          <div class="stat-item"><span class="stat-emoji">🏆</span><span class="stat-val" id="st-best">–</span><span class="stat-lbl">mejor día</span></div>
-          <div class="stat-item"><span class="stat-emoji">⏱</span><span class="stat-val" id="st-time">0h</span><span class="stat-lbl">trabajado</span></div>
-          <div class="stat-item"><span class="stat-emoji">⚡</span><span class="stat-val" id="st-hr">$0</span><span class="stat-lbl">por hora</span></div>
+
+      <!-- SUB: DÍAS -->
+      <div id="ht-dias">
+        <div id="hist-days-list"><div class="empty">Sin entregas registradas aún.</div></div>
+      </div>
+
+      <!-- SUB: STATS -->
+      <div id="ht-stats" style="display:none">
+        <div class="period-tabs" style="margin-bottom:14px">
+          <button class="ptab active" data-p="week">Semana</button>
+          <button class="ptab" data-p="month">Mes</button>
+          <button class="ptab" data-p="all">Todo</button>
+        </div>
+        <div class="stats-block">
+          <div class="stats-block-title">Resumen del período</div>
+          <div class="stat-grid" style="margin:0">
+            <div class="stat-item"><span class="stat-emoji">💰</span><span class="stat-val" id="st-total">$0</span><span class="stat-lbl">total</span></div>
+            <div class="stat-item"><span class="stat-emoji">🛵</span><span class="stat-val" id="st-count">0</span><span class="stat-lbl">servicios</span></div>
+            <div class="stat-item"><span class="stat-emoji">📊</span><span class="stat-val" id="st-avg">$0</span><span class="stat-lbl">prom diario</span></div>
+            <div class="stat-item"><span class="stat-emoji">🏆</span><span class="stat-val" id="st-best">–</span><span class="stat-lbl">mejor día</span></div>
+            <div class="stat-item"><span class="stat-emoji">⏱</span><span class="stat-val" id="st-time">0h</span><span class="stat-lbl">trabajado</span></div>
+            <div class="stat-item"><span class="stat-emoji">⚡</span><span class="stat-val" id="st-hr">$0</span><span class="stat-lbl">por hora</span></div>
+          </div>
+        </div>
+        <div class="stats-block"><div class="stats-block-title">Por día de la semana</div><div id="ch-weekday"></div></div>
+        <div class="stats-block"><div class="stats-block-title">Por horario</div><div id="ch-hour"></div></div>
+        <div class="stats-block"><div class="stats-block-title">Por plataforma</div><div id="ch-platform"></div></div>
+      </div>
+    </section>
+
+    <!-- MODAL EDITAR ENTREGA -->
+    <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);align-items:flex-end;justify-content:center">
+      <div style="background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 36px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span style="font-family:var(--font-n);font-size:18px;font-weight:700">Editar entrega</span>
+          <button id="edit-close" style="background:var(--surface2);border:none;color:var(--muted2);font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:50%">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="row2">
+            <div class="field"><label>Hora inicio</label><input id="e-start" type="time"/></div>
+            <div class="field"><label>Hora fin</label><input id="e-end" type="time"/></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Distancia (km)</label><input id="e-km" type="number" step="0.1" min="0" inputmode="decimal"/></div>
+            <div class="field"><label>Valor cobrado</label><input id="e-value" type="number" min="0" inputmode="numeric"/></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Propina</label><input id="e-tip" type="number" min="0" inputmode="numeric"/></div>
+            <div class="field"><label>Plataforma</label>
+              <select id="e-platform">
+                <option value="">Seleccionar...</option>
+                <option>Rappi</option><option>Didi Food</option><option>Uber Eats</option>
+                <option>InDrive</option><option>PedidosYa</option><option>iFood</option>
+                <option>Mensajería privada</option><option>Domicilios propios</option><option>Otra</option>
+              </select>
+            </div>
+          </div>
+          <div class="field"><label>Observaciones</label><textarea id="e-notes" rows="2"></textarea></div>
+          <button class="btn-save" id="btn-edit-save">Guardar cambios</button>
+          <button id="btn-edit-del" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);border-radius:14px;padding:12px;font-size:14px;font-family:var(--font-n);font-weight:600;cursor:pointer">🗑 Eliminar entrega</button>
         </div>
       </div>
-      <div class="stats-block"><div class="stats-block-title">Por día de la semana</div><div id="ch-weekday"></div></div>
-      <div class="stats-block"><div class="stats-block-title">Por horario</div><div id="ch-hour"></div></div>
-      <div class="stats-block"><div class="stats-block-title">Por plataforma</div><div id="ch-platform"></div></div>
-    </section>
+    </div>
 
   </main>
 
@@ -474,9 +545,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
       <span>Metas</span>
     </button>
-    <button class="nav-btn" data-page="stats">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      <span>Stats</span>
+    <button class="nav-btn" data-page="historial">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Historial</span>
     </button>
   </nav>
 </div>
@@ -493,8 +564,252 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <div id="toast"></div>
 
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+// ── HISTORIAL TABS ──
+document.querySelectorAll('.htab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.htab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const ht=t.dataset.ht;
+  $('ht-dias').style.display=ht==='dias'?'block':'none';
+  $('ht-stats').style.display=ht==='stats'?'block':'none';
+  if(ht==='stats')renderStats();
+  if(ht==='dias')renderHistorial();
+}));
+
+// ── RENDER HISTORIAL ──
+function renderHistorial(){
+  const wrap=$('hist-days-list');
+  if(!deliveries.length){wrap.innerHTML='<div class="empty">Sin entregas registradas aún.</div>';return}
+  // Agrupar por fecha
+  const byDate={};
+  deliveries.forEach(d=>{if(!byDate[d.date])byDate[d.date]=[];byDate[d.date].push(d)});
+  const sortedDates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+  const DIAS_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  wrap.innerHTML=sortedDates.map(date=>{
+    const list=byDate[date];
+    const earn=list.reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+    const km=list.reduce((s,d)=>s+(d.km||0),0);
+    const dt=new Date(date+'T12:00');
+    const label=DIAS_ES[dt.getDay()]+' '+dt.getDate()+' '+MESES[dt.getMonth()];
+    const isToday=date===today();
+    const cards=list.map(d=>{
+      const tot=(d.value||0)+(d.tip||0);
+      const tags=[];
+      if(d.km)tags.push('📍 '+d.km+' km');
+      if(d.mins)tags.push('⏱ '+fmtDur(d.mins));
+      if(d.tip)tags.push('🎁 '+fmtS(d.tip));
+      if(d.notes)tags.push('📝 '+d.notes);
+      return`<div class="d-card d-card-edit" data-id="${d.id}" onclick="openEdit('${d.id}')">
+        <div class="d-top"><span class="d-platform">${d.platform||'—'}</span><span class="d-time">${d.start||''} – ${d.end||''}</span></div>
+        <div class="d-vals"><div class="d-v">${fmtS(tot)}<small>total</small></div><div class="d-v">${fmtS(d.value||0)}<small>servicio</small></div>${d.tip?`<div class="d-v">${fmtS(d.tip)}<small>propina</small></div>`:''}</div>
+        ${tags.length?`<div class="d-tags">${tags.map(t=>`<span class="d-tag">${t}</span>`).join('')}</div>`:''}
+        <div class="edit-hint">Toca para editar ✏️</div>
+      </div>`;
+    }).join('');
+    return`<div class="day-card">
+      <div class="day-header" onclick="toggleDay('${date}')">
+        <span class="day-date">${isToday?'🟠 Hoy':label}</span>
+        <div class="day-right">
+          <span class="day-earn">${fmtS(earn)}</span>
+          <span class="day-count">${list.length} serv · ${km.toFixed(1)}km</span>
+          <span class="day-chevron" id="chev-${date}">›</span>
+        </div>
+      </div>
+      <div class="day-body${isToday?' open':''}" id="body-${date}">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDay(date){
+  const body=$('body-'+date),chev=$('chev-'+date);
+  const open=body.classList.toggle('open');
+  chev.classList.toggle('open',open);
+}
+
+// ── EDIT MODAL ──
+let editingId=null;
+
+function openEdit(id){
+  const d=deliveries.find(x=>x.id===id);
+  if(!d)return;
+  editingId=id;
+  $('e-start').value=d.start||'';
+  $('e-end').value=d.end||'';
+  $('e-km').value=d.km||'';
+  $('e-value').value=d.value||'';
+  $('e-tip').value=d.tip||'';
+  $('e-platform').value=d.platform||'';
+  $('e-notes').value=d.notes||'';
+  $('edit-modal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeEdit(){
+  $('edit-modal').classList.remove('show');
+  document.body.style.overflow='';
+  editingId=null;
+}
+$('edit-close').onclick=closeEdit;
+$('edit-modal').addEventListener('click',e=>{if(e.target===$('edit-modal'))closeEdit()});
+
+$('btn-edit-save').onclick=async()=>{
+  if(!editingId)return;
+  const s=$('e-start').value,e=$('e-end').value;
+  const val=parseFloat($('e-value').value)||0;
+  const plat=$('e-platform').value;
+  if(val<=0){toast('Agrega el valor cobrado','err');return}
+  if(!plat){toast('Selecciona la plataforma','err');return}
+  const mins=(s&&e)?diffMin(s,e):0;
+  const upd=clean({
+    start:s,end:e,mins,
+    km:parseFloat($('e-km').value)||0,
+    value:val,
+    tip:parseFloat($('e-tip').value)||0,
+    platform:plat,
+    notes:$('e-notes').value.trim(),
+    updatedAt:new Date().toISOString()
+  });
+  try{
+    await db.doc(uPath()+'/deliveries/'+editingId).update(upd);
+    toast('✅ Entrega actualizada','ok');
+    closeEdit();
+  }catch(err){toast('Error al guardar','err');console.error(err)}
+};
+
+$('btn-edit-del').onclick=async()=>{
+  if(!editingId)return;
+  if(!confirm('¿Eliminar esta entrega? No se puede deshacer.'))return;
+  try{
+    await db.doc(uPath()+'/deliveries/'+editingId).delete();
+    toast('Entrega eliminada');
+    closeEdit();
+  }catch(err){toast('Error','err');console.error(err)}
+};
+
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+// ── HISTORIAL TABS ──
+document.querySelectorAll('.htab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.htab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const ht=t.dataset.ht;
+  $('ht-dias').style.display=ht==='dias'?'block':'none';
+  $('ht-stats').style.display=ht==='stats'?'block':'none';
+  if(ht==='stats')renderStats();
+  if(ht==='dias')renderHistorial();
+}));
+
+// ── RENDER HISTORIAL ──
+function renderHistorial(){
+  const wrap=$('hist-days-list');
+  if(!deliveries.length){wrap.innerHTML='<div class="empty">Sin entregas registradas aún.</div>';return}
+  // Agrupar por fecha
+  const byDate={};
+  deliveries.forEach(d=>{if(!byDate[d.date])byDate[d.date]=[];byDate[d.date].push(d)});
+  const sortedDates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+  const DIAS_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  wrap.innerHTML=sortedDates.map(date=>{
+    const list=byDate[date];
+    const earn=list.reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+    const km=list.reduce((s,d)=>s+(d.km||0),0);
+    const dt=new Date(date+'T12:00');
+    const label=DIAS_ES[dt.getDay()]+' '+dt.getDate()+' '+MESES[dt.getMonth()];
+    const isToday=date===today();
+    const cards=list.map(d=>{
+      const tot=(d.value||0)+(d.tip||0);
+      const tags=[];
+      if(d.km)tags.push('📍 '+d.km+' km');
+      if(d.mins)tags.push('⏱ '+fmtDur(d.mins));
+      if(d.tip)tags.push('🎁 '+fmtS(d.tip));
+      if(d.notes)tags.push('📝 '+d.notes);
+      return`<div class="d-card d-card-edit" data-id="${d.id}" onclick="openEdit('${d.id}')">
+        <div class="d-top"><span class="d-platform">${d.platform||'—'}</span><span class="d-time">${d.start||''} – ${d.end||''}</span></div>
+        <div class="d-vals"><div class="d-v">${fmtS(tot)}<small>total</small></div><div class="d-v">${fmtS(d.value||0)}<small>servicio</small></div>${d.tip?`<div class="d-v">${fmtS(d.tip)}<small>propina</small></div>`:''}</div>
+        ${tags.length?`<div class="d-tags">${tags.map(t=>`<span class="d-tag">${t}</span>`).join('')}</div>`:''}
+        <div class="edit-hint">Toca para editar ✏️</div>
+      </div>`;
+    }).join('');
+    return`<div class="day-card">
+      <div class="day-header" onclick="toggleDay('${date}')">
+        <span class="day-date">${isToday?'🟠 Hoy':label}</span>
+        <div class="day-right">
+          <span class="day-earn">${fmtS(earn)}</span>
+          <span class="day-count">${list.length} serv · ${km.toFixed(1)}km</span>
+          <span class="day-chevron" id="chev-${date}">›</span>
+        </div>
+      </div>
+      <div class="day-body${isToday?' open':''}" id="body-${date}">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDay(date){
+  const body=$('body-'+date),chev=$('chev-'+date);
+  const open=body.classList.toggle('open');
+  chev.classList.toggle('open',open);
+}
+
+// ── EDIT MODAL ──
+let editingId=null;
+
+function openEdit(id){
+  const d=deliveries.find(x=>x.id===id);
+  if(!d)return;
+  editingId=id;
+  $('e-start').value=d.start||'';
+  $('e-end').value=d.end||'';
+  $('e-km').value=d.km||'';
+  $('e-value').value=d.value||'';
+  $('e-tip').value=d.tip||'';
+  $('e-platform').value=d.platform||'';
+  $('e-notes').value=d.notes||'';
+  $('edit-modal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeEdit(){
+  $('edit-modal').classList.remove('show');
+  document.body.style.overflow='';
+  editingId=null;
+}
+$('edit-close').onclick=closeEdit;
+$('edit-modal').addEventListener('click',e=>{if(e.target===$('edit-modal'))closeEdit()});
+
+$('btn-edit-save').onclick=async()=>{
+  if(!editingId)return;
+  const s=$('e-start').value,e=$('e-end').value;
+  const val=parseFloat($('e-value').value)||0;
+  const plat=$('e-platform').value;
+  if(val<=0){toast('Agrega el valor cobrado','err');return}
+  if(!plat){toast('Selecciona la plataforma','err');return}
+  const mins=(s&&e)?diffMin(s,e):0;
+  const upd=clean({
+    start:s,end:e,mins,
+    km:parseFloat($('e-km').value)||0,
+    value:val,
+    tip:parseFloat($('e-tip').value)||0,
+    platform:plat,
+    notes:$('e-notes').value.trim(),
+    updatedAt:new Date().toISOString()
+  });
+  try{
+    await db.doc(uPath()+'/deliveries/'+editingId).update(upd);
+    toast('✅ Entrega actualizada','ok');
+    closeEdit();
+  }catch(err){toast('Error al guardar','err');console.error(err)}
+};
+
+$('btn-edit-del').onclick=async()=>{
+  if(!editingId)return;
+  if(!confirm('¿Eliminar esta entrega? No se puede deshacer.'))return;
+  try{
+    await db.doc(uPath()+'/deliveries/'+editingId).delete();
+    toast('Entrega eliminada');
+    closeEdit();
+  }catch(err){toast('Error','err');console.error(err)}
+};
+
+</script>
 <script>
 // ── PWA: Service Worker ──
 if('serviceWorker' in navigator){
@@ -608,7 +923,7 @@ document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>
   b.classList.add('active');
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   $('page-'+b.dataset.page).classList.add('active');
-  if(b.dataset.page==='stats')renderStats();
+  if(b.dataset.page==='historial'){renderHistorial();renderStats();}
   if(b.dataset.page==='metas')renderGoals();
 }));
 
@@ -619,6 +934,7 @@ function loadData(){
     deliveries=s.docs.map(d=>({id:d.id,...d.data()}));
     if(lastPlatform)$('f-platform').value=lastPlatform;
     renderHome();renderTodayList();
+    if($('page-historial').classList.contains('active'))renderHistorial();
   });
   unsubF=db.collection(uPath()+'/fuel').orderBy('date','desc').onSnapshot(s=>{
     fuelLogs=s.docs.map(d=>({id:d.id,...d.data()}));
@@ -886,6 +1202,128 @@ function barChart(id,data){
   if(!data.some(d=>d.value>0)){el.innerHTML='<div class="empty">Sin datos.</div>';return}
   el.innerHTML=data.map((d,i)=>`<div class="bar-row"><span class="bar-lbl">${d.label}</span><div class="bar-track"><div class="bar-fill ${i===bi&&d.value>0?'top':''}" style="width:${(d.value/max*100).toFixed(1)}%">${d.value>0?`<span class="bval">${fmtS(d.value)}</span>`:''}</div></div></div>`).join('');
 }
+
+// ── HISTORIAL TABS ──
+document.querySelectorAll('.htab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.htab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const ht=t.dataset.ht;
+  $('ht-dias').style.display=ht==='dias'?'block':'none';
+  $('ht-stats').style.display=ht==='stats'?'block':'none';
+  if(ht==='stats')renderStats();
+  if(ht==='dias')renderHistorial();
+}));
+
+// ── RENDER HISTORIAL ──
+function renderHistorial(){
+  const wrap=$('hist-days-list');
+  if(!deliveries.length){wrap.innerHTML='<div class="empty">Sin entregas registradas aún.</div>';return}
+  // Agrupar por fecha
+  const byDate={};
+  deliveries.forEach(d=>{if(!byDate[d.date])byDate[d.date]=[];byDate[d.date].push(d)});
+  const sortedDates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+  const DIAS_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  wrap.innerHTML=sortedDates.map(date=>{
+    const list=byDate[date];
+    const earn=list.reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+    const km=list.reduce((s,d)=>s+(d.km||0),0);
+    const dt=new Date(date+'T12:00');
+    const label=DIAS_ES[dt.getDay()]+' '+dt.getDate()+' '+MESES[dt.getMonth()];
+    const isToday=date===today();
+    const cards=list.map(d=>{
+      const tot=(d.value||0)+(d.tip||0);
+      const tags=[];
+      if(d.km)tags.push('📍 '+d.km+' km');
+      if(d.mins)tags.push('⏱ '+fmtDur(d.mins));
+      if(d.tip)tags.push('🎁 '+fmtS(d.tip));
+      if(d.notes)tags.push('📝 '+d.notes);
+      return`<div class="d-card d-card-edit" data-id="${d.id}" onclick="openEdit('${d.id}')">
+        <div class="d-top"><span class="d-platform">${d.platform||'—'}</span><span class="d-time">${d.start||''} – ${d.end||''}</span></div>
+        <div class="d-vals"><div class="d-v">${fmtS(tot)}<small>total</small></div><div class="d-v">${fmtS(d.value||0)}<small>servicio</small></div>${d.tip?`<div class="d-v">${fmtS(d.tip)}<small>propina</small></div>`:''}</div>
+        ${tags.length?`<div class="d-tags">${tags.map(t=>`<span class="d-tag">${t}</span>`).join('')}</div>`:''}
+        <div class="edit-hint">Toca para editar ✏️</div>
+      </div>`;
+    }).join('');
+    return`<div class="day-card">
+      <div class="day-header" onclick="toggleDay('${date}')">
+        <span class="day-date">${isToday?'🟠 Hoy':label}</span>
+        <div class="day-right">
+          <span class="day-earn">${fmtS(earn)}</span>
+          <span class="day-count">${list.length} serv · ${km.toFixed(1)}km</span>
+          <span class="day-chevron" id="chev-${date}">›</span>
+        </div>
+      </div>
+      <div class="day-body${isToday?' open':''}" id="body-${date}">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDay(date){
+  const body=$('body-'+date),chev=$('chev-'+date);
+  const open=body.classList.toggle('open');
+  chev.classList.toggle('open',open);
+}
+
+// ── EDIT MODAL ──
+let editingId=null;
+
+function openEdit(id){
+  const d=deliveries.find(x=>x.id===id);
+  if(!d)return;
+  editingId=id;
+  $('e-start').value=d.start||'';
+  $('e-end').value=d.end||'';
+  $('e-km').value=d.km||'';
+  $('e-value').value=d.value||'';
+  $('e-tip').value=d.tip||'';
+  $('e-platform').value=d.platform||'';
+  $('e-notes').value=d.notes||'';
+  $('edit-modal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeEdit(){
+  $('edit-modal').classList.remove('show');
+  document.body.style.overflow='';
+  editingId=null;
+}
+$('edit-close').onclick=closeEdit;
+$('edit-modal').addEventListener('click',e=>{if(e.target===$('edit-modal'))closeEdit()});
+
+$('btn-edit-save').onclick=async()=>{
+  if(!editingId)return;
+  const s=$('e-start').value,e=$('e-end').value;
+  const val=parseFloat($('e-value').value)||0;
+  const plat=$('e-platform').value;
+  if(val<=0){toast('Agrega el valor cobrado','err');return}
+  if(!plat){toast('Selecciona la plataforma','err');return}
+  const mins=(s&&e)?diffMin(s,e):0;
+  const upd=clean({
+    start:s,end:e,mins,
+    km:parseFloat($('e-km').value)||0,
+    value:val,
+    tip:parseFloat($('e-tip').value)||0,
+    platform:plat,
+    notes:$('e-notes').value.trim(),
+    updatedAt:new Date().toISOString()
+  });
+  try{
+    await db.doc(uPath()+'/deliveries/'+editingId).update(upd);
+    toast('✅ Entrega actualizada','ok');
+    closeEdit();
+  }catch(err){toast('Error al guardar','err');console.error(err)}
+};
+
+$('btn-edit-del').onclick=async()=>{
+  if(!editingId)return;
+  if(!confirm('¿Eliminar esta entrega? No se puede deshacer.'))return;
+  try{
+    await db.doc(uPath()+'/deliveries/'+editingId).delete();
+    toast('Entrega eliminada');
+    closeEdit();
+  }catch(err){toast('Error','err');console.error(err)}
+};
+
 </script>
 </body>
 </html>
