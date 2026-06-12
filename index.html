@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#FF6B00"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="MotoTrack"/>
 <title>MotoTrack</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -15,89 +21,63 @@
   --font-n:'Space Grotesk',sans-serif;--font-ui:'Inter',sans-serif;
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-ui);-webkit-tap-highlight-color:transparent}
-
-/* ── SCREENS ── */
 .screen{position:fixed;inset:0;display:none;flex-direction:column;background:var(--bg)}
 .screen.active{display:flex}
 
-/* ── LOGIN ── */
+/* LOGIN */
 #login-screen{align-items:center;justify-content:center;padding:24px;
   background:radial-gradient(ellipse at 50% 0%,rgba(255,107,0,.12) 0%,transparent 70%),var(--bg)}
 .login-wrap{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:6px}
 .login-logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.login-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,#FF6B00,#ff8c38);border-radius:12px;
-  display:flex;align-items:center;justify-content:center;font-size:22px}
+.login-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,#FF6B00,#ff8c38);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
 .login-brand{font-family:var(--font-n);font-size:26px;font-weight:700;color:var(--text)}
 .login-sub{font-size:13px;color:var(--muted2);margin-bottom:28px}
 .login-card{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:20px}
-
-/* name step */
 .step-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);text-align:center;margin-bottom:4px}
 .name-input-wrap{position:relative}
-.name-input-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;
-  color:var(--text);font-size:16px;font-family:var(--font-ui);padding:14px 44px 14px 16px;outline:none;transition:border-color .2s}
+.name-input-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:16px;font-family:var(--font-ui);padding:14px 44px 14px 16px;outline:none;transition:border-color .2s}
 .name-input-wrap input:focus{border-color:var(--accent)}
 .name-input-wrap .icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:18px}
 .login-back{background:none;border:none;color:var(--muted2);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0;margin-bottom:4px}
-.login-back:hover{color:var(--text)}
-
-/* pin */
 .pin-dots{display:flex;gap:10px;justify-content:center;margin:8px 0}
 .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:transparent;transition:all .15s}
 .dot.filled{background:var(--accent);border-color:var(--accent);transform:scale(1.1)}
 .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.num-btn{padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--surface2);
-  color:var(--text);font-size:20px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .12s;position:relative;overflow:hidden}
+.num-btn{padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:20px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .12s}
 .num-btn:active{background:var(--surface);transform:scale(.96)}
 .num-btn.del{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:var(--red);font-size:16px}
 .num-btn.ok{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.3);color:var(--green);font-size:18px}
-.login-username{font-family:var(--font-n);font-size:16px;font-weight:600;color:var(--accent)}
-
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;
-  padding:15px;font-size:15px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s;width:100%}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s;width:100%}
 .btn-primary:active{transform:scale(.98);opacity:.9}
 .error-msg{color:var(--red);font-size:13px;text-align:center;background:rgba(239,68,68,.1);border-radius:10px;padding:10px;display:none}
 .error-msg.show{display:block}
 
-/* ── TOP BAR ── */
-.topbar{height:var(--top-h);background:var(--surface);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
+/* TOPBAR */
+.topbar{height:var(--top-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
 .topbar-brand{display:flex;align-items:center;gap:8px}
-.topbar-icon{width:28px;height:28px;background:linear-gradient(135deg,#FF6B00,#ff8c38);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;font-size:14px}
+.topbar-icon{width:28px;height:28px;background:linear-gradient(135deg,#FF6B00,#ff8c38);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
 .topbar-name{font-family:var(--font-n);font-size:14px;font-weight:700;color:var(--text)}
 .topbar-user{font-size:12px;color:var(--accent)}
 .topbar-right{display:flex;align-items:center;gap:4px}
-.icon-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:8px;border-radius:10px;
-  font-size:18px;transition:all .15s}
-.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.icon-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:8px;border-radius:10px;font-size:18px;transition:all .15s}
 .topbar-date{font-size:12px;color:var(--muted2)}
 
-/* ── PAGES ── */
+/* PAGES */
 .pages{flex:1;overflow:hidden;position:relative}
 .page{display:none;position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(var(--nav-h)+16px)}
 .page.active{display:block}
 .page-title{font-family:var(--font-n);font-size:20px;font-weight:700;margin-bottom:16px}
 
-/* ── BOTTOM NAV ── */
-.bottom-nav{height:var(--nav-h);background:var(--surface);border-top:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;
-  color:var(--muted);font-size:10px;font-family:var(--font-ui);cursor:pointer;padding:8px 0;transition:all .15s;border-radius:12px}
-.nav-btn svg{transition:all .15s}
+/* BOTTOM NAV */
+.bottom-nav{height:var(--nav-h);background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--muted);font-size:10px;font-family:var(--font-ui);cursor:pointer;padding:8px 0;transition:all .15s;border-radius:12px}
 .nav-btn.active{color:var(--accent)}
 .nav-btn.active svg{stroke:var(--accent)}
 .nav-btn span{font-weight:500}
 
-/* ── CARDS ── */
+/* CARDS / FORMS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px}
-.card+.card,.card+.form-section{margin-top:12px}
-
-/* ── HERO ── */
-.hero-card{background:linear-gradient(135deg,var(--surface) 0%,rgba(255,107,0,.08) 100%);
-  border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:12px;
-  display:flex;align-items:center;justify-content:space-between}
-.hero-left{}
+.hero-card{background:linear-gradient(135deg,var(--surface) 0%,rgba(255,107,0,.08) 100%);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
 .hero-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted2);margin-bottom:4px}
 .hero-amt{font-family:var(--font-n);font-size:40px;font-weight:700;color:var(--green);line-height:1}
 .hero-sub{font-size:12px;color:var(--muted2);margin-top:4px}
@@ -106,19 +86,45 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
 .ring-pct{font-family:var(--font-n);font-size:16px;font-weight:700;color:var(--accent)}
 .ring-lbl{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.4px}
-
-/* ── STAT GRID ── */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-.stat-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;
-  padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.stat-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
 .stat-emoji{font-size:16px}
 .stat-val{font-family:var(--font-n);font-size:15px;font-weight:700}
 .stat-lbl{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.3px}
-
-/* ── SECTION TITLE ── */
 .sec-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted2);margin-bottom:10px}
 
-/* ── DELIVERY CARD ── */
+/* NET BANNER */
+.net-banner{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:12px}
+.net-banner-row{display:flex;align-items:center;justify-content:space-around;gap:4px}
+.net-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.net-lbl{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.4px;text-align:center}
+.net-val{font-family:var(--font-n);font-size:18px;font-weight:700;color:var(--text)}
+.net-val.green{color:var(--green)}.net-val.yellow{color:var(--yellow)}
+.net-sep{font-size:20px;color:var(--muted2);font-weight:700;flex-shrink:0}
+.net-note{font-size:11px;color:var(--muted2);text-align:center;margin-top:10px;line-height:1.5}
+
+/* TRACKER WIDGET */
+.tracker-card{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:18px;margin-bottom:12px;transition:border-color .3s}
+.tracker-card.running{border-color:var(--accent);background:linear-gradient(135deg,var(--surface),rgba(255,107,0,.06))}
+.tracker-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.tracker-label{font-family:var(--font-n);font-size:15px;font-weight:700}
+.tracker-status{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.tracker-status.idle{background:var(--surface2);color:var(--muted2)}
+.tracker-status.live{background:rgba(255,107,0,.15);color:var(--accent);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.tracker-timer{font-family:var(--font-n);font-size:38px;font-weight:700;color:var(--text);text-align:center;margin:10px 0;letter-spacing:2px}
+.tracker-timer.running{color:var(--accent)}
+.tracker-meta{display:flex;gap:10px;margin-bottom:14px}
+.tracker-meta-item{flex:1;background:var(--surface2);border-radius:12px;padding:10px 8px;text-align:center}
+.tracker-meta-v{font-family:var(--font-n);font-size:16px;font-weight:700}
+.tracker-meta-l{font-size:10px;color:var(--muted2);text-transform:uppercase}
+.tracker-btns{display:flex;gap:10px}
+.btn-start{flex:1;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-family:var(--font-n);font-weight:700;cursor:pointer;transition:all .15s}
+.btn-start:active{transform:scale(.97)}
+.btn-cancel{padding:14px 18px;border-radius:14px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);font-size:14px;font-family:var(--font-n);font-weight:600;cursor:pointer}
+.tracker-inputs{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* DELIVERY LIST */
 .d-list{display:flex;flex-direction:column;gap:8px}
 .d-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
 .d-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -133,32 +139,35 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .d-tag{font-size:11px;color:var(--muted2);background:var(--surface2);padding:2px 8px;border-radius:8px}
 .empty{text-align:center;color:var(--muted2);font-size:13px;padding:28px 16px;line-height:1.7}
 
-/* ── FORM ── */
+/* FORMS */
 .form-section{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2)}
-.field input,.field select,.field textarea{
-  background:var(--surface2);border:1px solid var(--border);border-radius:12px;
-  color:var(--text);font-size:15px;font-family:var(--font-ui);padding:11px 14px;outline:none;transition:border-color .2s;width:100%}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:15px;font-family:var(--font-ui);padding:11px 14px;outline:none;transition:border-color .2s;width:100%}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
 .field select option{background:var(--surface2)}
 .field textarea{resize:none}
 .row2{display:flex;gap:12px}.row2>.field{flex:1;min-width:0}
-.btn-save{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;
-  padding:14px;font-size:15px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s;width:100%}
+.btn-save{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s;width:100%}
 .btn-save:active{transform:scale(.98)}
 
-/* ── FUEL ── */
+/* FUEL */
 .fuel-row{display:flex;gap:10px;margin-bottom:12px}
 .fuel-kpi{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 8px;text-align:center}
 .fuel-kpi-v{font-family:var(--font-n);font-size:18px;font-weight:700;color:var(--yellow);display:block}
 .fuel-kpi-l{font-size:10px;color:var(--muted2);text-transform:uppercase}
+.jornada-card{background:var(--surface);border:1px solid rgba(255,107,0,.3);border-radius:16px;padding:14px;margin-bottom:12px}
+.jornada-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.jornada-title{font-family:var(--font-n);font-size:14px;font-weight:700}
+.jornada-active{font-size:11px;color:var(--green);background:rgba(34,197,94,.12);padding:3px 8px;border-radius:20px}
+.jornada-inactive{font-size:11px;color:var(--muted2);background:var(--surface2);padding:3px 8px;border-radius:20px}
+.jornada-row{display:flex;gap:10px;align-items:flex-end}
 .fuel-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
 .fuel-card-date{font-size:11px;color:var(--muted2);margin-bottom:3px}
 .fuel-card-cost{font-family:var(--font-n);font-size:18px;font-weight:700;color:var(--yellow)}
 .fuel-card-meta{font-size:12px;color:var(--muted2);text-align:right}
 
-/* ── GOALS ── */
+/* GOALS */
 .goal-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px}
 .goal-card+.goal-card{margin-top:10px}
 .goal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -169,37 +178,33 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .goal-fill.done{background:var(--green)}
 .goal-pct-txt{font-size:11px;color:var(--muted2);text-align:right;margin-top:4px}
 
-/* ── STATS ── */
+/* STATS */
 .period-tabs{display:flex;gap:8px;margin-bottom:14px}
-.ptab{flex:1;padding:8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);
-  color:var(--muted2);font-size:13px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s}
+.ptab{flex:1;padding:8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--muted2);font-size:13px;font-family:var(--font-n);font-weight:600;cursor:pointer;transition:all .15s}
 .ptab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .stats-block{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
 .stats-block-title{font-size:11px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.bar-lbl{font-size:11px;color:var(--muted2);min-width:58px;text-align:right}
+.bar-lbl{font-size:11px;color:var(--muted2);min-width:60px;text-align:right}
 .bar-track{flex:1;height:22px;background:var(--surface2);border-radius:8px;overflow:hidden}
-.bar-fill{height:100%;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;transition:width .4s ease;min-width:0}
+.bar-fill{height:100%;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;transition:width .4s ease}
 .bar-fill .bval{font-size:11px;font-family:var(--font-n);font-weight:600;color:#fff;white-space:nowrap}
 .bar-fill.top{background:var(--green)}
 
-/* ── NET BANNER ── */
-.net-banner{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:12px}
-.net-banner-row{display:flex;align-items:center;justify-content:space-around;gap:4px}
-.net-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
-.net-lbl{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.4px;text-align:center}
-.net-val{font-family:var(--font-n);font-size:18px;font-weight:700;color:var(--text)}
-.net-val.green{color:var(--green)}.net-val.yellow{color:var(--yellow)}
-.net-sep{font-size:20px;color:var(--muted2);font-weight:700;flex-shrink:0}
-.net-note{font-size:11px;color:var(--muted2);text-align:center;margin-top:10px;line-height:1.5}
-
-/* ── TOAST ── */
-#toast{position:fixed;bottom:calc(var(--nav-h)+14px);left:50%;transform:translateX(-50%) translateY(12px);
-  background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;
-  padding:10px 20px;border-radius:20px;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+/* TOAST */
+#toast{position:fixed;bottom:calc(var(--nav-h)+14px);left:50%;transform:translateX(-50%) translateY(12px);background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:10px 20px;border-radius:20px;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.ok{border-color:var(--green);color:var(--green)}
 #toast.err{border-color:var(--red);color:var(--red)}
+
+/* PWA INSTALL BANNER */
+#install-banner{position:fixed;bottom:calc(var(--nav-h)+14px);left:16px;right:16px;background:var(--surface);border:1px solid var(--accent);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:998;display:none}
+#install-banner.show{display:flex}
+.install-text{font-size:13px;color:var(--text);line-height:1.4}
+.install-text strong{color:var(--accent)}
+.install-btns{display:flex;gap:8px;flex-shrink:0}
+.btn-install{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-family:var(--font-n);font-weight:600;cursor:pointer}
+.btn-install-no{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px}
 
 @media(min-width:520px){.pages{display:flex;justify-content:center}.page{max-width:500px;width:100%}}
 </style>
@@ -214,8 +219,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <span class="login-brand">MotoTrack</span>
     </div>
     <p class="login-sub">Control inteligente para domiciliarios</p>
-
-    <!-- STEP 1: nombre -->
     <div class="login-card" id="step-name">
       <div>
         <div class="step-label">Ingresa tu nombre de usuario</div>
@@ -227,8 +230,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <button class="btn-primary" id="btn-continue">→ Continuar</button>
       <div class="error-msg" id="err-name"></div>
     </div>
-
-    <!-- STEP 2: PIN -->
     <div class="login-card" id="step-pin" style="display:none">
       <div>
         <button class="login-back" id="btn-back">← <span id="back-name"></span></button>
@@ -239,18 +240,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         </div>
       </div>
       <div class="numpad">
-        <button class="num-btn" data-n="1">1</button>
-        <button class="num-btn" data-n="2">2</button>
-        <button class="num-btn" data-n="3">3</button>
-        <button class="num-btn" data-n="4">4</button>
-        <button class="num-btn" data-n="5">5</button>
-        <button class="num-btn" data-n="6">6</button>
-        <button class="num-btn" data-n="7">7</button>
-        <button class="num-btn" data-n="8">8</button>
-        <button class="num-btn" data-n="9">9</button>
-        <button class="num-btn del" data-n="del">⌫</button>
-        <button class="num-btn" data-n="0">0</button>
-        <button class="num-btn ok" data-n="ok">✓</button>
+        <button class="num-btn" data-n="1">1</button><button class="num-btn" data-n="2">2</button><button class="num-btn" data-n="3">3</button>
+        <button class="num-btn" data-n="4">4</button><button class="num-btn" data-n="5">5</button><button class="num-btn" data-n="6">6</button>
+        <button class="num-btn" data-n="7">7</button><button class="num-btn" data-n="8">8</button><button class="num-btn" data-n="9">9</button>
+        <button class="num-btn del" data-n="del">⌫</button><button class="num-btn" data-n="0">0</button><button class="num-btn ok" data-n="ok">✓</button>
       </div>
       <div class="error-msg" id="err-pin"></div>
     </div>
@@ -262,10 +255,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <header class="topbar">
     <div class="topbar-brand">
       <div class="topbar-icon">🛵</div>
-      <div>
-        <div class="topbar-name">MotoTrack</div>
-        <div class="topbar-user" id="tb-user"></div>
-      </div>
+      <div><div class="topbar-name">MotoTrack</div><div class="topbar-user" id="tb-user"></div></div>
     </div>
     <div class="topbar-right">
       <span class="topbar-date" id="tb-date"></span>
@@ -274,6 +264,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </header>
 
   <main class="pages">
+
     <!-- INICIO -->
     <section id="page-inicio" class="page active">
       <div class="hero-card">
@@ -289,13 +280,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
               stroke-dasharray="251.2" stroke-dashoffset="251.2" id="ring-arc"
               stroke-linecap="round" transform="rotate(-90 50 50)"/>
           </svg>
-          <div class="ring-text">
-            <span class="ring-pct" id="ring-pct">0%</span>
-            <span class="ring-lbl">meta</span>
-          </div>
+          <div class="ring-text"><span class="ring-pct" id="ring-pct">0%</span><span class="ring-lbl">meta</span></div>
         </div>
       </div>
-
       <div class="stat-grid">
         <div class="stat-item"><span class="stat-emoji">🎁</span><span class="stat-val" id="h-tips">$0</span><span class="stat-lbl">propinas</span></div>
         <div class="stat-item"><span class="stat-emoji">⏱</span><span class="stat-val" id="h-time">–</span><span class="stat-lbl">trabajado</span></div>
@@ -304,34 +291,52 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="stat-item"><span class="stat-emoji">📍</span><span class="stat-val" id="h-km">0 km</span><span class="stat-lbl">recorridos</span></div>
         <div class="stat-item"><span class="stat-emoji">🛵</span><span class="stat-val" id="h-count">0</span><span class="stat-lbl">servicios</span></div>
       </div>
-      <!-- NETA HOY: ganancia bruta - gasto gasolina proporcional -->
       <div class="net-banner" id="net-banner" style="display:none">
         <div class="net-banner-row">
-          <div class="net-col">
-            <span class="net-lbl">💰 Bruto hoy</span>
-            <span class="net-val green" id="nb-gross">$0</span>
-          </div>
+          <div class="net-col"><span class="net-lbl">💰 Bruto hoy</span><span class="net-val green" id="nb-gross">$0</span></div>
           <div class="net-sep">−</div>
-          <div class="net-col">
-            <span class="net-lbl">⛽ Gasolina est.</span>
-            <span class="net-val yellow" id="nb-fuel">$0</span>
-          </div>
+          <div class="net-col"><span class="net-lbl">⛽ Gasolina est.</span><span class="net-val yellow" id="nb-fuel">$0</span></div>
           <div class="net-sep">=</div>
-          <div class="net-col">
-            <span class="net-lbl">✅ Neta real</span>
-            <span class="net-val" id="nb-net">$0</span>
-          </div>
+          <div class="net-col"><span class="net-lbl">✅ Neta real</span><span class="net-val" id="nb-net">$0</span></div>
         </div>
         <div class="net-note" id="nb-note"></div>
       </div>
-
       <div class="sec-title">Últimas entregas hoy</div>
-      <div class="d-list" id="recent-list"><div class="empty">Sin entregas hoy.<br>¡Registra tu primera entrega!</div></div>
+      <div class="d-list" id="recent-list"><div class="empty">Sin entregas hoy.<br>¡Registra tu primera!</div></div>
     </section>
 
     <!-- REGISTRAR -->
     <section id="page-registro" class="page">
-      <div class="page-title">Nueva entrega</div>
+      <div class="page-title">Registrar entrega</div>
+
+      <!-- TRACKER -->
+      <div class="tracker-card" id="tracker-card">
+        <div class="tracker-top">
+          <span class="tracker-label">⏱ Cronómetro</span>
+          <span class="tracker-status idle" id="tracker-status">En espera</span>
+        </div>
+        <div class="tracker-timer" id="tracker-timer">00:00:00</div>
+        <div class="tracker-meta">
+          <div class="tracker-meta-item">
+            <div class="tracker-meta-v" id="tr-start-disp">--:--</div>
+            <div class="tracker-meta-l">Inicio</div>
+          </div>
+          <div class="tracker-meta-item">
+            <div class="tracker-meta-v" id="tr-end-disp">--:--</div>
+            <div class="tracker-meta-l">Fin</div>
+          </div>
+          <div class="tracker-meta-item">
+            <div class="tracker-meta-v" id="tr-mins-disp">0 min</div>
+            <div class="tracker-meta-l">Duración</div>
+          </div>
+        </div>
+        <div class="tracker-btns">
+          <button class="btn-start" id="btn-tracker">▶ Iniciar domicilio</button>
+          <button class="btn-cancel" id="btn-tracker-cancel" style="display:none">✕</button>
+        </div>
+      </div>
+
+      <!-- FORM -->
       <div class="form-section">
         <div class="row2">
           <div class="field"><label>Hora inicio</label><input id="f-start" type="time"/></div>
@@ -346,8 +351,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
           <div class="field"><label>Plataforma</label>
             <select id="f-platform">
               <option value="">Seleccionar...</option>
-              <option>Rappi</option><option>Didi Food</option><option>PedidosYa</option>
-              <option>iFood</option><option>Mensajería privada</option><option>Otra</option>
+              <option>Rappi</option>
+              <option>Didi Food</option>
+              <option>Uber Eats</option>
+              <option>InDrive</option>
+              <option>PedidosYa</option>
+              <option>iFood</option>
+              <option>Mensajería privada</option>
+              <option>Domicilios propios</option>
+              <option>Otra</option>
             </select>
           </div>
         </div>
@@ -367,6 +379,30 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="fuel-kpi"><span class="fuel-kpi-v" id="g-cpkm">–</span><span class="fuel-kpi-l">costo/km</span></div>
         <div class="fuel-kpi" style="border-color:rgba(34,197,94,.3)"><span class="fuel-kpi-v" id="g-net" style="color:var(--green)">–</span><span class="fuel-kpi-l">neta total</span></div>
       </div>
+
+      <!-- ODÓMETRO JORNADA -->
+      <div class="jornada-card">
+        <div class="jornada-header">
+          <span class="jornada-title">📍 Odómetro de jornada</span>
+          <span id="jornada-badge" class="jornada-inactive">Sin jornada</span>
+        </div>
+        <div class="jornada-row">
+          <div class="field" style="flex:1">
+            <label>Km al iniciar jornada</label>
+            <input id="j-start-odo" type="number" min="0" placeholder="ej: 253090" inputmode="numeric"/>
+          </div>
+          <div class="field" style="flex:1">
+            <label>Km al terminar (opcional)</label>
+            <input id="j-end-odo" type="number" min="0" placeholder="ej: 253210" inputmode="numeric"/>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn-save" id="btn-save-jornada" style="flex:1">Registrar jornada</button>
+        </div>
+        <div id="jornada-result" style="display:none;margin-top:12px;padding:12px;background:var(--surface2);border-radius:12px;font-size:13px;color:var(--muted2);line-height:1.7"></div>
+      </div>
+
+      <!-- TANQUEADA FORM -->
       <div class="form-section">
         <div class="sec-title" style="margin:0 0 2px">Registrar tanqueada</div>
         <div class="row2">
@@ -418,6 +454,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="stats-block"><div class="stats-block-title">Por horario</div><div id="ch-hour"></div></div>
       <div class="stats-block"><div class="stats-block-title">Por plataforma</div><div id="ch-platform"></div></div>
     </section>
+
   </main>
 
   <nav class="bottom-nav">
@@ -444,13 +481,43 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </nav>
 </div>
 
+<!-- PWA INSTALL BANNER -->
+<div id="install-banner">
+  <div class="install-text"><strong>📲 Instalar MotoTrack</strong><br>Agrégala a tu pantalla de inicio</div>
+  <div class="install-btns">
+    <button class="btn-install" id="btn-install">Instalar</button>
+    <button class="btn-install-no" id="btn-install-no">✕</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script>
-// ── CONFIG FIREBASE ──
+// ── PWA: Service Worker ──
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(()=>console.log('SW registered')).catch(e=>console.log('SW error',e));
+}
+
+// ── PWA: Install prompt ──
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e;
+  setTimeout(()=>{ if(deferredPrompt)$('install-banner').classList.add('show'); },3000);
+});
+document.addEventListener('DOMContentLoaded',()=>{
+  $('btn-install').onclick=async()=>{
+    if(!deferredPrompt)return;
+    deferredPrompt.prompt();
+    const r=await deferredPrompt.userChoice;
+    deferredPrompt=null; $('install-banner').classList.remove('show');
+  };
+  $('btn-install-no').onclick=()=>$('install-banner').classList.remove('show');
+});
+
+// ── FIREBASE ──
 const firebaseConfig = {
   apiKey:            "AIzaSyCX3Mwn8YwYrE2yQCsmvMBRjfegoJmwOFM",
   authDomain:        "mototrack-f33b7.firebaseapp.com",
@@ -466,6 +533,9 @@ const db = firebase.firestore();
 let user=null, deliveries=[], fuelLogs=[], goals={daily:0,weekly:0,monthly:0};
 let pinBuf='', activePeriod='week', lastPlatform=localStorage.getItem('lp')||'';
 let unsubD=null, unsubF=null;
+// Tracker state
+let trackerRunning=false, trackerStart=null, trackerInterval=null;
+let trStartStr='', trEndStr='', trMins=0;
 
 const $=id=>document.getElementById(id);
 const DAYS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -476,6 +546,7 @@ const clean=o=>{const r={};for(const[k,v]of Object.entries(o))if(v!==undefined&&
 function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast show '+(type==='ok'?'ok':type==='err'?'err':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2500)}
 function diffMin(s,e){let a=s.split(':').map(Number),b=e.split(':').map(Number);let d=(b[0]-a[0])*60+(b[1]-a[1]);return d<0?d+1440:d}
 function fmtDur(m){const h=Math.floor(m/60);return h>0?`${h}h ${m%60}m`:`${m}m`}
+function hhmm(d){return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 
 // ── LOGIN ──
 $('btn-continue').onclick=()=>{
@@ -483,15 +554,12 @@ $('btn-continue').onclick=()=>{
   if(!n){showErr('err-name','Escribe tu nombre');return}
   $('back-name').textContent=n;
   $('step-name').style.display='none';
-  $('step-pin').style.display='flex';
-  $('step-pin').style.flexDirection='column';
-  $('step-pin').style.gap='20px';
+  $('step-pin').style.display='flex';$('step-pin').style.flexDirection='column';$('step-pin').style.gap='20px';
 };
 $('ln-name').onkeydown=e=>{if(e.key==='Enter')$('btn-continue').click()};
 $('btn-back').onclick=()=>{$('step-pin').style.display='none';$('step-name').style.display='flex';$('step-name').style.flexDirection='column';$('step-name').style.gap='20px';pinBuf='';updateDots()};
 document.querySelectorAll('.num-btn').forEach(b=>b.addEventListener('click',()=>handlePin(b.dataset.n)));
 
-// ── TECLADO FÍSICO (PC) para PIN ──
 document.addEventListener('keydown',e=>{
   const sp=$('step-pin'); if(sp.style.display!=='flex')return;
   if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
@@ -525,8 +593,14 @@ async function doLogin(){
     loadData();
   }catch(e){showErr('err-pin','Error conectando a Firebase. Verifica la configuración.');console.error(e)}
 }
-
-$('btn-logout').onclick=()=>{if(unsubD)unsubD();if(unsubF)unsubF();user=null;deliveries=[];fuelLogs=[];pinBuf='';updateDots();$('ln-name').value='';$('step-pin').style.display='none';$('step-name').style.display='flex';$('step-name').style.flexDirection='column';$('step-name').style.gap='20px';$('login-screen').classList.add('active');$('app-screen').classList.remove('active')};
+$('btn-logout').onclick=()=>{
+  if(unsubD)unsubD();if(unsubF)unsubF();
+  stopTracker(false);
+  user=null;deliveries=[];fuelLogs=[];pinBuf='';updateDots();
+  $('ln-name').value='';$('step-pin').style.display='none';
+  $('step-name').style.display='flex';$('step-name').style.flexDirection='column';$('step-name').style.gap='20px';
+  $('login-screen').classList.add('active');$('app-screen').classList.remove('active');
+};
 
 // ── NAV ──
 document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{
@@ -547,13 +621,82 @@ function loadData(){
     renderHome();renderTodayList();
   });
   unsubF=db.collection(uPath()+'/fuel').orderBy('date','desc').onSnapshot(s=>{
-    fuelLogs=s.docs.map(d=>({id:d.id,...d.data()}));renderFuel();renderHome();renderHome();
+    fuelLogs=s.docs.map(d=>({id:d.id,...d.data()}));
+    renderFuel();renderHome();
   });
+  // Restore tracker state from localStorage (si cerró accidentalmente)
+  const saved=localStorage.getItem('trackerStart');
+  if(saved){trackerStart=new Date(saved);trStartStr=hhmm(trackerStart);startTrackerUI()}
+}
+
+// ── TRACKER ──
+$('btn-tracker').onclick=()=>{
+  if(!trackerRunning) startTracker();
+  else finishTracker();
+};
+$('btn-tracker-cancel').onclick=()=>{if(confirm('¿Cancelar el domicilio en curso?'))stopTracker(false)};
+
+function startTracker(){
+  trackerRunning=true;
+  trackerStart=new Date();
+  trStartStr=hhmm(trackerStart);
+  localStorage.setItem('trackerStart', trackerStart.toISOString());
+  startTrackerUI();
+  toast('▶ Domicilio iniciado','ok');
+}
+function startTrackerUI(){
+  trackerRunning=true;
+  $('tracker-card').classList.add('running');
+  $('tracker-status').textContent='🟠 En curso';
+  $('tracker-status').className='tracker-status live';
+  $('btn-tracker').textContent='✅ Finalizar domicilio';
+  $('btn-tracker-cancel').style.display='block';
+  $('tr-start-disp').textContent=trStartStr;
+  $('tr-end-disp').textContent='--:--';
+  $('f-start').value=trStartStr;
+  clearInterval(trackerInterval);
+  trackerInterval=setInterval(()=>{
+    const now=new Date();
+    const secs=Math.floor((now-trackerStart)/1000);
+    const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+    $('tracker-timer').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    $('tracker-timer').className='tracker-timer running';
+    trMins=Math.round(secs/60);
+    $('tr-mins-disp').textContent=fmtDur(trMins);
+  },1000);
+}
+function finishTracker(){
+  clearInterval(trackerInterval);
+  const end=new Date();
+  trEndStr=hhmm(end);
+  trMins=diffMin(trStartStr, trEndStr);
+  $('tr-end-disp').textContent=trEndStr;
+  $('f-start').value=trStartStr;
+  $('f-end').value=trEndStr;
+  $('tracker-card').classList.remove('running');
+  $('tracker-status').textContent='✅ Completado — rellena el formulario';
+  $('tracker-status').className='tracker-status idle';
+  $('tracker-timer').className='tracker-timer';
+  $('btn-tracker').textContent='▶ Iniciar domicilio';
+  $('btn-tracker-cancel').style.display='none';
+  trackerRunning=false;
+  localStorage.removeItem('trackerStart');
+  toast('✅ Domicilio finalizado — guarda los datos','ok');
+}
+function stopTracker(save){
+  clearInterval(trackerInterval);trackerRunning=false;trackerStart=null;
+  localStorage.removeItem('trackerStart');
+  $('tracker-card').classList.remove('running');
+  $('tracker-status').textContent='En espera';$('tracker-status').className='tracker-status idle';
+  $('tracker-timer').textContent='00:00:00';$('tracker-timer').className='tracker-timer';
+  $('btn-tracker').textContent='▶ Iniciar domicilio';
+  $('btn-tracker-cancel').style.display='none';
+  $('tr-start-disp').textContent='--:--';$('tr-end-disp').textContent='--:--';$('tr-mins-disp').textContent='0 min';
 }
 
 // ── DELIVERY FORM ──
 (()=>{
-  const now=new Date(), pad=n=>String(n).padStart(2,'0');
+  const now=new Date(),pad=n=>String(n).padStart(2,'0');
   const ts=pad(now.getHours())+':'+pad(now.getMinutes());
   $('f-start').value=ts;$('f-end').value=ts;
   if(lastPlatform)$('f-platform').value=lastPlatform;
@@ -574,8 +717,9 @@ async function saveDelivery(){
     $('f-km').value='';$('f-value').value='';$('f-tip').value='';$('f-notes').value='';
     const n=new Date(),p=n=>String(n).padStart(2,'0');
     const t=p(n.getHours())+':'+p(n.getMinutes());$('f-start').value=t;$('f-end').value=t;
+    stopTracker(false);
     toast('✅ Entrega guardada','ok');
-  }catch(e){toast('Error al guardar','err');console.error(e)}
+  }catch(err){toast('Error al guardar','err');console.error(err)}
 }
 async function delDelivery(id){if(!confirm('¿Eliminar entrega?'))return;try{await db.doc(uPath()+`/deliveries/${id}`).delete()}catch(e){toast('Error','err')}}
 
@@ -587,7 +731,6 @@ function renderHome(){
   const km=list.reduce((s,d)=>s+(d.km||0),0);
   const mins=list.reduce((s,d)=>s+(d.mins||0),0);
   const avg=list.length?earn/list.length:0;
-  // "Por hora" solo si hay tiempo registrado (mins>0)
   const hr=mins>0?earn/mins*60:0;
   $('h-today').textContent=fmtS(earn);
   $('h-sub').textContent=list.length+' servicios · '+km.toFixed(1)+' km';
@@ -598,30 +741,25 @@ function renderHome(){
   $('h-km').textContent=km.toFixed(1)+' km';
   $('h-count').textContent=list.length;
   if(goals.daily>0){const p=Math.min(earn/goals.daily,1);$('ring-arc').setAttribute('stroke-dashoffset',251.2-251.2*p);$('ring-pct').textContent=Math.round(p*100)+'%'}
-  // ── BANNER NETA REAL ──
-  calcNetBanner(earn, km);
+  calcNetBanner(earn,km);
   const el=$('recent-list'),sl=list.slice(0,5);
   el.innerHTML=sl.length?sl.map(dCard).join(''):'<div class="empty">Sin entregas hoy.<br>¡Registra tu primera!</div>';
   el.querySelectorAll('.d-del').forEach(b=>b.addEventListener('click',()=>delDelivery(b.dataset.id)));
 }
-
-function calcNetBanner(earnToday, kmToday){
-  // Necesitamos costo/km para estimar gasto de gasolina
+function calcNetBanner(earnToday,kmToday){
   const totalKmAll=deliveries.reduce((s,d)=>s+(d.km||0),0);
   const totalFuelCost=fuelLogs.reduce((s,f)=>s+(f.cost||0),0);
   const banner=$('net-banner');
   if(!fuelLogs.length||totalKmAll===0){banner.style.display='none';return}
-  const cpkm=totalFuelCost/totalKmAll; // costo promedio por km
-  const fuelEstimate=kmToday*cpkm;
-  const netReal=earnToday-fuelEstimate;
+  const cpkm=totalFuelCost/totalKmAll;
+  const fuelEst=kmToday*cpkm;
+  const net=earnToday-fuelEst;
   banner.style.display='block';
   $('nb-gross').textContent=fmtS(earnToday);
-  $('nb-fuel').textContent=fmtS(fuelEstimate);
-  const netEl=$('nb-net');
-  netEl.textContent=fmtS(netReal);
-  netEl.className='net-val '+(netReal>=0?'green':'');
-  netEl.style.color=netReal<0?'var(--red)':'';
-  $('nb-note').textContent='Costo estimado: '+fmtS(cpkm)+'/km · '+kmToday.toFixed(1)+' km recorridos hoy';
+  $('nb-fuel').textContent=fmtS(fuelEst);
+  const nel=$('nb-net');nel.textContent=fmtS(net);
+  nel.className='net-val'+(net>=0?' green':'');nel.style.color=net<0?'var(--red)':'';
+  $('nb-note').textContent='Costo est.: '+fmtS(cpkm)+'/km · '+kmToday.toFixed(1)+' km hoy';
 }
 function renderTodayList(){
   const td=today(),list=deliveries.filter(d=>d.date===td);
@@ -639,8 +777,36 @@ function dCard(d){
   return`<div class="d-card"><div class="d-top"><span class="d-platform">${d.platform||'—'}</span><span class="d-time">${d.start} – ${d.end}</span><button class="d-del" data-id="${d.id}">🗑</button></div><div class="d-vals"><div class="d-v">${fmtS(tot)}<small>total</small></div><div class="d-v">${fmtS(d.value||0)}<small>servicio</small></div>${d.tip?`<div class="d-v">${fmtS(d.tip)}<small>propina</small></div>`:''}</div>${tags.length?`<div class="d-tags">${tags.map(t=>`<span class="d-tag">${t}</span>`).join('')}</div>`:''}</div>`;
 }
 
-// ── FUEL ──
+// ── JORNADA ODÓMETRO ──
 $('g-date').value=today();
+$('btn-save-jornada').onclick=()=>{
+  const startOdo=parseFloat($('j-start-odo').value)||0;
+  const endOdo=parseFloat($('j-end-odo').value)||0;
+  if(!startOdo){toast('Ingresa el km de inicio','err');return}
+  let html=`<b>🏁 Inicio:</b> ${startOdo.toLocaleString()} km`;
+  if(endOdo>startOdo){
+    const diff=endOdo-startOdo;
+    const totalFuelCost=fuelLogs.reduce((s,f)=>s+(f.cost||0),0);
+    const totalKm=deliveries.reduce((s,d)=>s+(d.km||0),0);
+    const cpkm=totalKm>0?totalFuelCost/totalKm:0;
+    const fuelCostJornada=cpkm*diff;
+    const earnJornada=deliveries.filter(d=>d.date===today()).reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
+    html+=`<br><b>🏁 Fin:</b> ${endOdo.toLocaleString()} km`;
+    html+=`<br><b>📍 Km rodados:</b> ${diff.toLocaleString()} km`;
+    if(cpkm>0)html+=`<br><b>⛽ Gasto gasolina est.:</b> ${fmtS(fuelCostJornada)}`;
+    if(earnJornada>0&&cpkm>0)html+=`<br><b>✅ Neta jornada:</b> ${fmtS(earnJornada-fuelCostJornada)}`;
+    $('jornada-badge').textContent='Jornada registrada ✓';
+    $('jornada-badge').className='jornada-active';
+  } else {
+    $('jornada-badge').textContent='Jornada activa';
+    $('jornada-badge').className='jornada-active';
+  }
+  $('jornada-result').style.display='block';
+  $('jornada-result').innerHTML=html;
+  toast('📍 Odómetro guardado','ok');
+};
+
+// ── FUEL ──
 $('btn-save-fuel').onclick=async()=>{
   const date=$('g-date').value||today(),cost=parseFloat($('g-cost').value)||0,
         liters=parseFloat($('g-liters').value)||0,odo=parseFloat($('g-odo').value)||0;
@@ -654,35 +820,17 @@ function renderFuel(){
   const el=$('fuel-list');
   const totalKm=deliveries.reduce((s,d)=>s+(d.km||0),0);
   const totalEarn=deliveries.reduce((s,d)=>s+(d.value||0)+(d.tip||0),0);
-  if(!fuelLogs.length){
-    el.innerHTML='<div class="empty">Sin tanqueadas.<br>Registra tu primer gasto de gasolina.</div>';
-    $('g-consume').textContent='–';$('g-cpkm').textContent='–';$('g-net').textContent=fmtS(totalEarn);
-    return;
-  }
+  if(!fuelLogs.length){el.innerHTML='<div class="empty">Sin tanqueadas.<br>Registra tu primer gasto de gasolina.</div>';$('g-consume').textContent='–';$('g-cpkm').textContent='–';$('g-net').textContent=fmtS(totalEarn);return}
   const totalCost=fuelLogs.reduce((s,f)=>s+(f.cost||0),0);
   const totalL=fuelLogs.reduce((s,f)=>s+(f.liters||0),0);
-
-  // km/galón: usar odómetro si hay 2+ registros con odo, sino usar km de entregas
   const sorted=[...fuelLogs].filter(f=>f.odo>0).sort((a,b)=>a.odo-b.odo);
   let kmGalon='–';
-  if(sorted.length>=2&&totalL>0){
-    const kmOdo=sorted[sorted.length-1].odo-sorted[0].odo;
-    if(kmOdo>0)kmGalon=(kmOdo/totalL).toFixed(1);
-  } else if(totalKm>0&&totalL>0){
-    kmGalon=(totalKm/totalL).toFixed(1)+' *';
-  }
+  if(sorted.length>=2&&totalL>0){const kmOdo=sorted[sorted.length-1].odo-sorted[0].odo;if(kmOdo>0)kmGalon=(kmOdo/totalL).toFixed(1);}
+  else if(totalKm>0&&totalL>0)kmGalon=(totalKm/totalL).toFixed(1)+' *';
   $('g-consume').textContent=kmGalon;
-
-  // costo/km: total gastado en gasolina / total km recorridos en entregas
-  if(totalCost>0&&totalKm>0){
-    $('g-cpkm').textContent=fmtS(totalCost/totalKm);
-  } else if(totalCost>0){
-    $('g-cpkm').textContent='sin km';
-  } else {
-    $('g-cpkm').textContent='–';
-  }
+  if(totalCost>0&&totalKm>0)$('g-cpkm').textContent=fmtS(totalCost/totalKm);
+  else $('g-cpkm').textContent=totalCost>0?'sin km':'–';
   $('g-net').textContent=fmtS(totalEarn-totalCost);
-
   el.innerHTML=fuelLogs.slice(0,20).map(f=>`<div class="fuel-card"><div><div class="fuel-card-date">${f.date}</div><div class="fuel-card-cost">${fmtS(f.cost||0)}</div></div><div class="fuel-card-meta">${f.liters?f.liters+' gal/lt':''} ${f.odo?'· 🛣 '+f.odo+' km':''}<br><button class="d-del" data-id="${f.id}">🗑</button></div></div>`).join('');
   el.querySelectorAll('.d-del').forEach(b=>b.addEventListener('click',()=>delFuel(b.dataset.id)));
 }
@@ -710,7 +858,6 @@ function renderGoals(){
 
 // ── STATS ──
 document.querySelectorAll('.ptab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.ptab').forEach(x=>x.classList.remove('active'));t.classList.add('active');activePeriod=t.dataset.p;renderStats()}));
-
 function getPeriod(){
   const now=new Date();
   if(activePeriod==='all')return deliveries;
@@ -727,12 +874,12 @@ function renderStats(){
   $('st-total').textContent=fmtS(total);$('st-count').textContent=list.length;
   $('st-avg').textContent=fmtS(days.length?total/days.length:0);
   $('st-best').textContent=best?DAYS[new Date(best[0]).getDay()]:'–';
-  $('st-time').textContent=fmtDur(mins);$('st-hr').textContent=fmtS(mins?total/mins*60:0);
+  $('st-time').textContent=mins>0?fmtDur(mins):'–';$('st-hr').textContent=mins>0?fmtS(total/mins*60):'–';
   barChart('ch-weekday',weekdayData(list));barChart('ch-hour',hourData(list));barChart('ch-platform',platformData(list));
 }
-function weekdayData(l){const s=Array(7).fill(0),c=Array(7).fill(0);l.forEach(d=>{const i=new Date(d.date+'T12:00').getDay();s[i]+=(d.value||0)+(d.tip||0);c[i]++});return DAYS.map((lb,i)=>({label:lb,value:s[i],count:c[i]}))}
+function weekdayData(l){const s=Array(7).fill(0);l.forEach(d=>{const i=new Date(d.date+'T12:00').getDay();s[i]+=(d.value||0)+(d.tip||0)});return DAYS.map((lb,i)=>({label:lb,value:s[i]}))}
 function hourData(l){const r=['6-9','9-12','12-15','15-18','18-21','21-24'],b=[[6,9],[9,12],[12,15],[15,18],[18,21],[21,24]],s=Array(6).fill(0);l.forEach(d=>{if(!d.start)return;const h=parseInt(d.start);b.forEach(([a,z],i)=>{if(h>=a&&h<z)s[i]+=(d.value||0)+(d.tip||0)})});return r.map((lb,i)=>({label:lb,value:s[i]}))}
-function platformData(l){const s={},c={};l.forEach(d=>{const p=d.platform||'Otra';s[p]=(s[p]||0)+(d.value||0)+(d.tip||0);c[p]=(c[p]||0)+1});return Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([lb,v])=>({label:lb,value:v}))}
+function platformData(l){const s={};l.forEach(d=>{const p=d.platform||'Otra';s[p]=(s[p]||0)+(d.value||0)+(d.tip||0)});return Object.entries(s).sort((a,b)=>b[1]-a[1]).map(([lb,v])=>({label:lb,value:v}))}
 function barChart(id,data){
   const el=$(id),max=Math.max(...data.map(d=>d.value),1);
   const bi=data.reduce((bi,d,i)=>d.value>data[bi].value?i:bi,0);
